@@ -2,8 +2,9 @@ module TimeFrames
 
 using Base: Dates
 
-#export TimeFrame, Boundary
-#export Millisecondly, Secondly, Minutely, Hourly, Daily, Weekly, Monthly, Yearly
+export TimeFrame, Boundary
+export Millisecondly, Secondly, Minutely, Hourly, Daily, Weekly, Monthly, Yearly
+export apply
 
 abstract TimeFrame
 
@@ -91,5 +92,8 @@ _d_f_boundary = Dict(
     End::Boundary => ceil
 )
 
+function apply(tf, dt)
+    dt_grouper(tf)(dt)
+end
 
 end # module
