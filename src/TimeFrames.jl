@@ -2,7 +2,10 @@ module TimeFrames
 
 using Base: Dates
 
-abstract AbstractTimeFrame
+#export TimeFrame, Boundary
+#export Millisecondly, Secondly, Minutely, Hourly, Daily, Weekly, Monthly, Yearly
+
+abstract TimeFrame
 
 @enum(Boundary,
     Begin = 1,  # begin of interval
@@ -10,39 +13,43 @@ abstract AbstractTimeFrame
 )
 
 #T should be Dates.TimePeriod
-type TimeFrame{T} <: AbstractTimeFrame
+type TimePeriodFrame{T} <: TimeFrame
     time_period::T
     boundary::Boundary
-    TimeFrame(; boundary=Begin::Boundary) = new(1, boundary)
-    TimeFrame(n::Integer; boundary=Begin::Boundary) = new(n, boundary)
+    TimePeriodFrame(; boundary=Begin::Boundary) = new(1, boundary)
+    TimePeriodFrame(n::Integer; boundary=Begin::Boundary) = new(n, boundary)
 end
 
-Base.hash(tf::AbstractTimeFrame, h::UInt) = hash(tf.val)
-Base.:(==)(tf1::AbstractTimeFrame, tf2::AbstractTimeFrame) = isequal(tf1.time_period, tf2.time_period)
+Base.hash(tf::TimePeriodFrame, h::UInt) = hash(tf.val)
+Base.:(==)(tf1::TimePeriodFrame, tf2::TimePeriodFrame) = isequal(tf1.time_period, tf2.time_period)
 
-Millisecondly = TimeFrame{Dates.Millisecond}
-Secondly = TimeFrame{Dates.Second}
-Minutely = TimeFrame{Dates.Minute}
-Hourly = TimeFrame{Dates.Hour}
-Daily = TimeFrame{Dates.Day}
-Weekly = TimeFrame{Dates.Week}
-Monthly = TimeFrame{Dates.Month}
-Yearly = TimeFrame{Dates.Year}
+Millisecondly = TimePeriodFrame{Dates.Millisecond}
+Secondly = TimePeriodFrame{Dates.Second}
+Minutely = TimePeriodFrame{Dates.Minute}
+Hourly = TimePeriodFrame{Dates.Hour}
+Daily = TimePeriodFrame{Dates.Day}
+Weekly = TimePeriodFrame{Dates.Week}
+Monthly = TimePeriodFrame{Dates.Month}
+Yearly = TimePeriodFrame{Dates.Year}
 
 TimeFrame() = Secondly(0)
 
-_D_TIMEFRAME2STR = Dict(
-    Yearly=>"Y",
-    Monthly=>"M",
-    Weekly=>"W",
-    Daily=>"D",
-    Hourly=>"H",
-    Minutely=>"T"
+function dt_grouper(tf::TimePeriodFrame)
+    dt -> _d_f_boundary[tf.boundary](dt, tf.time_period)
+end
+
+_D_STR2TIMEFRAME = Dict(
+    "Y"=>Yearly,
+    "M"=>Monthly,
+    "W"=>Weekly,
+    "D"=>Daily,
+    "H"=>Hourly,
+    "T"=>Minutely
 )
 
-_D_STR2TIMEFRAME = Dict{String,DataType}()
-for (key, value) in _D_TIMEFRAME2STR
-    _D_STR2TIMEFRAME[value] = key
+_D_TIMEFRAME2STR = Dict{DataType,String}()
+for (key, value) in _D_STR2TIMEFRAME
+    _D_TIMEFRAME2STR[value] = key
 end
 
 function shortcut(tf::TimeFrame)
@@ -66,14 +73,23 @@ function TimeFrame(s::String)
     end
 end
 
+type CustomTimeFrame <: TimeFrame
+    f_group::Function
+end
+
+function TimeFrame(f_group::Function)
+    CustomTimeFrame(f_group)
+end
+
+function dt_grouper(tf::CustomTimeFrame)
+    tf.f_group
+end
+
+
 _d_f_boundary = Dict(
     Begin::Boundary => floor,
     End::Boundary => ceil
 )
-
-function grouper(tf)
-    dt -> _d_f_boundary[tf.boundary](dt, tf.time_period)
-end
 
 
 end # module
