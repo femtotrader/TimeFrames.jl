@@ -39,6 +39,12 @@ dt = DateTime(2016, 7, 20, 13, 24, 35, 245)
 tf = TimeFrame(dt -> floor(dt, Dates.Minute(15)))  # custom TimeFrame with lambda function as DateTime grouper
 @test apply(tf, dt) == DateTime(2016, 7, 20, 13, 15, 0, 0)
 
+tf = TimeFrame(Dates.Minute(15))  # custom TimeFrame using TimePeriod
+@test apply(tf, dt) == DateTime(2016, 7, 20, 13, 15, 0, 0)
+
+tf = TimeFrame(Dates.Day(1))  # custom TimeFrame using DatePeriod
+@test apply(tf, dt) == DateTime(2016, 7, 20, 0, 0, 0, 0)
+
 tf = Yearly()
 #@test apply(tf, dt) == 2016
 #@test apply(tf, dt) == DateTime(2016, 1, 1, 0, 0, 0, 0)

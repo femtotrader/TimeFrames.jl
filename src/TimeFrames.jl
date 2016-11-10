@@ -82,6 +82,11 @@ function TimeFrame(f_group::Function)
     CustomTimeFrame(f_group)
 end
 
+function TimeFrame(td::Dates.Period; boundary=Begin::Boundary)
+    CustomTimeFrame(dt-> _d_f_boundary[boundary](dt, td))
+end
+
+
 function dt_grouper(tf::CustomTimeFrame)
     tf.f_group
 end
