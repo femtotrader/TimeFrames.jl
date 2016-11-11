@@ -68,8 +68,13 @@ function TimeFrame(s::String)
     if m == nothing
         error("Can't parse %s to TimeFrame")
     else
-        tf_typ = _D_STR2TIMEFRAME[m[2]]
-        value = parse(Int, m[1])
+        s_freq = m[2]
+        tf_typ = _D_STR2TIMEFRAME[s_freq]
+        if m[1] != ""
+            value = parse(Int, m[1])
+        else
+            value = 1
+        end
         tf_typ(value)
     end
 end

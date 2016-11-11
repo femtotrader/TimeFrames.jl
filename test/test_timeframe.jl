@@ -33,6 +33,10 @@ tf = TimeFrame("15T")
 @test tf.time_period.value == 15
 @test typeof(tf) == Minutely
 
+tf = TimeFrame("T")
+@test tf.time_period.value == 1
+@test typeof(tf) == Minutely
+
 # Grouper
 dt = DateTime(2016, 7, 20, 13, 24, 35, 245)
 
