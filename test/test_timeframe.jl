@@ -37,6 +37,15 @@ tf = TimeFrame("T")
 @test tf.time_period.value == 1
 @test typeof(tf) == Minutely
 
+#tf = TimeFrame("15MIN")
+#@test tf.time_period.value == 15
+#@test shortcut(tf) == "15T"
+#@test typeof(tf) == Minutely
+
+tf = TimeFrame("5H")
+@test tf.time_period.value == 5
+@test typeof(tf) == Hourly
+
 # Grouper
 dt = DateTime(2016, 7, 20, 13, 24, 35, 245)
 

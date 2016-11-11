@@ -45,7 +45,9 @@ _D_STR2TIMEFRAME = Dict(
     "W"=>Weekly,
     "D"=>Daily,
     "H"=>Hourly,
-    "T"=>Minutely
+    #"HOUR"=>Hourly,
+    "T"=>Minutely,
+    #"MIN"=>Minutely
 )
 
 _D_TIMEFRAME2STR = Dict{DataType,String}()
@@ -65,12 +67,12 @@ end
 function TimeFrame(s::String)
     freq_pattern = join(keys(_D_STR2TIMEFRAME), "|")
     #pattern = r"^([\d]*)([Y|M|W|D|H|T])$"
-    pattern = Regex("^([\\d]*)([$freq_pattern])\$")
+    pattern = Regex("^([\\d]*)([$freq_pattern]*)\$")
     m = match(pattern, s)
     if m == nothing
         error("Can't parse '$s' to TimeFrame")
     else
-        s_freq = m[2]
+        s_freq = uppercase(m[2])
         tf_typ = _D_STR2TIMEFRAME[s_freq]
         if m[1] != ""
             value = parse(Int, m[1])
@@ -94,11 +96,9 @@ function TimeFrame(td::Dates.Period; boundary=Begin::Boundary)
     TimePeriodFrame{T}(td.value, boundary=boundary)
 end
 
-
 function dt_grouper(tf::CustomTimeFrame)
     tf.f_group
 end
-
 
 _d_f_boundary = Dict(
     Begin::Boundary => floor,
