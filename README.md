@@ -8,10 +8,16 @@
 
 A Julia library that defines TimeFrames (essentially for resampling TimeSeries).
 
+## Install
+
+```julia
+julia> Pkg.add("TimeFrames")
+```
+
 ## Usage
 
 ```julia
-using TimeFrames
+julia> using TimeFrames
 
 julia> tf = TimeFrame("5T")
 TimeFrames.TimePeriodFrame{Base.Dates.Minute}(5 minutes,Begin::TimeFrames.Boundary = 1)
