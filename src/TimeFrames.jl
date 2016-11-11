@@ -14,7 +14,7 @@ abstract TimeFrame
 )
 
 #T should be Dates.TimePeriod
-type TimePeriodFrame{T} <: TimeFrame
+immutable TimePeriodFrame{T} <: TimeFrame
     time_period::T
     boundary::Boundary
     TimePeriodFrame(; boundary=Begin::Boundary) = new(1, boundary)
