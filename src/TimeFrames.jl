@@ -45,14 +45,19 @@ _D_STR2TIMEFRAME = Dict(
     "W"=>Weekly,
     "D"=>Daily,
     "H"=>Hourly,
-    #"HOUR"=>Hourly,
     "T"=>Minutely,
-    #"MIN"=>Minutely
 )
-
+# Reverse key/value
 _D_TIMEFRAME2STR = Dict{DataType,String}()
 for (key, value) in _D_STR2TIMEFRAME
     _D_TIMEFRAME2STR[value] = key
+end
+# Additional shortcuts
+_D_STR2TIMEFRAME_ADDITIONAL = Dict(
+    "MIN"=>Minutely,
+)
+for (key, value) in _D_STR2TIMEFRAME_ADDITIONAL
+    _D_STR2TIMEFRAME[key] = value
 end
 
 function shortcut(tf::TimeFrame)
