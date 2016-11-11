@@ -83,7 +83,8 @@ function TimeFrame(f_group::Function)
 end
 
 function TimeFrame(td::Dates.Period; boundary=Begin::Boundary)
-    CustomTimeFrame(dt-> _d_f_boundary[boundary](dt, td))
+    T = typeof(td)
+    TimePeriodFrame{T}(td.value, boundary=boundary)
 end
 
 
