@@ -72,7 +72,7 @@ end
 function TimeFrame(s::String)
     freq_pattern = join(keys(_D_STR2TIMEFRAME), "|")
     #pattern = r"^([\d]*)([Y|M|W|D|H|T])$"
-    pattern = Regex("^([\\d]*)([$freq_pattern]*)\$")
+    pattern = Regex("^([\\d]*)([$freq_pattern]*)\$", "i")
     m = match(pattern, s)
     if m == nothing
         error("Can't parse '$s' to TimeFrame")

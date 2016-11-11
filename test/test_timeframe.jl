@@ -37,7 +37,7 @@ tf = TimeFrame("T")
 @test tf.time_period.value == 1
 @test typeof(tf) == Minutely
 
-tf = TimeFrame("15MIN")  # 15Min
+tf = TimeFrame("15Min")
 @test tf.time_period.value == 15
 @test shortcut(tf) == "15T"
 @test typeof(tf) == Minutely
@@ -59,13 +59,11 @@ tf = TimeFrame(Dates.Day(1))  # TimePeriodFrame using DatePeriod
 @test apply(tf, dt) == DateTime(2016, 7, 20, 0, 0, 0, 0)
 
 tf = Yearly()
-#@test apply(tf, dt) == 2016
 #@test apply(tf, dt) == DateTime(2016, 1, 1, 0, 0, 0, 0)
 @test apply(tf, dt) == Date(2016, 1, 1)
 #@test typeof(f_group(dt)) == Date
 
 tf = Monthly()
-#@test apply(tf, dt) == (2016, 7)
 #@test apply(tf, dt) == DateTime(2016, 7, 1, 0, 0, 0, 0)
 @test apply(tf, dt) == Date(2016, 7, 1)
 
@@ -74,24 +72,19 @@ tf = Weekly()
 @test apply(tf, dt) == Date(2016, 7, 18)
 
 tf = Daily()
-#@test apply(tf, dt) == (2016, 7, 20)
 #@test apply(tf, dt) == DateTime(2016, 7, 20, 0, 0, 0, 0)
 @test apply(tf, dt) == Date(2016, 7, 20)
 
 tf = Hourly()
-#@test apply(tf, dt) == (2016, 7, 20, 13)
 @test apply(tf, dt) == DateTime(2016, 7, 20, 13, 0, 0, 0)
 
 tf = Minutely()
-#@test apply(tf, dt) == (2016, 7, 20, 13, 24)
 @test apply(tf, dt) == DateTime(2016, 7, 20, 13, 24, 0, 0)
 
 tf = Secondly()
-#@test apply(tf, dt) == (2016, 7, 20, 13, 24, 35)
 @test apply(tf, dt) == DateTime(2016, 7, 20, 13, 24, 35, 0)
 
 tf = Millisecondly()
-#@test apply(tf, dt) == (2016, 7, 20, 13, 24, 35, 245)
 @test apply(tf, dt) == DateTime(2016, 7, 20, 13, 24, 35, 245)
 
 tf = Yearly(10)
