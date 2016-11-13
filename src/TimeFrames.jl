@@ -5,6 +5,7 @@ using Base: Dates
 export TimeFrame, Boundary
 export Millisecondly, Secondly, Minutely, Hourly, Daily, Weekly, Monthly, Yearly
 export apply
+export Begin, End
 
 abstract TimeFrame
 
