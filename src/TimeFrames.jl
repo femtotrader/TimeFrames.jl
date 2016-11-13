@@ -121,7 +121,7 @@ function TimeFrame(td::Dates.Period; boundary=Begin::Boundary)
     TimePeriodFrame{T}(td.value, boundary=boundary)
 end
 
-function dt_grouper(tf::CustomTimeFrame)
+function dt_grouper(tf::CustomTimeFrame, ::Type)
     tf.f_group
 end
 
@@ -131,10 +131,6 @@ _d_f_boundary = Dict(
 )
 
 function apply(tf, dt)
-    dt_grouper(tf)(dt)
-end
-
-function apply(tf::TimePeriodFrame, dt)
     dt_grouper(tf, typeof(dt))(dt)
 end
 
