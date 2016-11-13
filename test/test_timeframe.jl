@@ -9,6 +9,10 @@ using Base.Test
 tf = Yearly()
 @test tf.time_period.value == 1
 
+@test Yearly() == Yearly()
+@test Yearly() != Yearly(5)
+@test Yearly(boundary=End) != Yearly(boundary=Begin)
+
 tf = Minutely()
 @test tf.time_period.value == 1
 

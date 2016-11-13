@@ -21,8 +21,8 @@ immutable TimePeriodFrame{T} <: TimeFrame
     TimePeriodFrame(n::Integer; boundary=Begin::Boundary) = new(n, boundary)
 end
 
-Base.hash(tf::TimePeriodFrame, h::UInt) = hash(tf.val)
-Base.:(==)(tf1::TimePeriodFrame, tf2::TimePeriodFrame) = isequal(tf1.time_period, tf2.time_period)
+Base.hash(tf::TimePeriodFrame, h::UInt) = hash(tf.time_period, hash(tf.boundary))
+Base.:(==)(tf1::TimePeriodFrame, tf2::TimePeriodFrame) = hash(tf1) == hash(tf2)
 
 Millisecondly = TimePeriodFrame{Dates.Millisecond}
 Secondly = TimePeriodFrame{Dates.Second}
