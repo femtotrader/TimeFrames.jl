@@ -24,6 +24,9 @@ end
 Base.hash(tf::TimePeriodFrame, h::UInt) = hash(tf.time_period, hash(tf.boundary))
 Base.:(==)(tf1::TimePeriodFrame, tf2::TimePeriodFrame) = hash(tf1) == hash(tf2)
 
+DATE_PERIOD_STEP = Day(1)
+TIME_PERIOD_STEP = Millisecond(1)
+
 Millisecondly = TimePeriodFrame{Dates.Millisecond}
 Secondly = TimePeriodFrame{Dates.Second}
 Minutely = TimePeriodFrame{Dates.Minute}
@@ -38,6 +41,23 @@ TimeFrame() = Secondly(0)
 function dt_grouper(tf::TimePeriodFrame)
     dt -> _d_f_boundary[tf.boundary](dt, tf.time_period)
 end
+
+function dt_grouper(tf::TimePeriodFrame, ::Type{Date})
+    if tf.boundary == Begin
+        dt -> _d_f_boundary[tf.boundary](dt, tf.time_period)
+    else
+        dt -> _d_f_boundary[tf.boundary](dt, tf.time_period) - DATE_PERIOD_STEP
+    end
+end
+
+function dt_grouper(tf::TimePeriodFrame, ::Type{DateTime})
+    if tf.boundary == Begin
+        dt -> _d_f_boundary[tf.boundary](dt, tf.time_period)
+    else
+        dt -> _d_f_boundary[tf.boundary](dt, tf.time_period) - TIME_PERIOD_STEP    
+    end
+end
+
 
 _D_STR2TIMEFRAME = Dict(
     "Y"=>Yearly,
@@ -113,5 +133,10 @@ _d_f_boundary = Dict(
 function apply(tf, dt)
     dt_grouper(tf)(dt)
 end
+
+function apply(tf::TimePeriodFrame, dt)
+    dt_grouper(tf, typeof(dt))(dt)
+end
+
 
 end # module
