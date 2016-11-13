@@ -10,6 +10,7 @@ export Begin, End
 abstract TimeFrame
 
 @enum(Boundary,
+    UndefBoundary = 0,  # Undefined boundary
     Begin = 1,  # begin of interval
     End   = 2,  # end of interval
 )
@@ -46,19 +47,22 @@ end
 function dt_grouper(tf::TimePeriodFrame, ::Type{Date})
     if tf.boundary == Begin
         dt -> _d_f_boundary[tf.boundary](dt, tf.time_period)
-    else
+    elseif tf.boundary == End
         dt -> _d_f_boundary[tf.boundary](dt, tf.time_period) - DATE_PERIOD_STEP
+    else
+        error("Unsupported boundary $(tf.boundary)")
     end
 end
 
 function dt_grouper(tf::TimePeriodFrame, ::Type{DateTime})
     if tf.boundary == Begin
         dt -> _d_f_boundary[tf.boundary](dt, tf.time_period)
+    elseif tf.boundary == End
+        dt -> _d_f_boundary[tf.boundary](dt, tf.time_period) - TIME_PERIOD_STEP
     else
-        dt -> _d_f_boundary[tf.boundary](dt, tf.time_period) - TIME_PERIOD_STEP    
+        error("Unsupported boundary $(tf.boundary)")
     end
 end
-
 
 _D_STR2TIMEFRAME = Dict(
     "Y"=>Yearly,
@@ -90,7 +94,7 @@ function shortcut(tf::TimeFrame)
     end
 end
 
-function TimeFrame(s::String)
+function TimeFrame(s::String; boundary=UndefBoundary)
     freq_pattern = join(keys(_D_STR2TIMEFRAME), "|")
     #pattern = r"^([\d]*)([Y|M|W|D|H|T])$"
     pattern = Regex("^([\\d]*)([$freq_pattern]*)\$", "i")
@@ -105,7 +109,11 @@ function TimeFrame(s::String)
         else
             value = 1
         end
-        tf_typ(value)
+        if boundary == UndefBoundary
+            tf_typ(value)
+        else
+            tf_typ(value, boundary=boundary)
+        end
     end
 end
 

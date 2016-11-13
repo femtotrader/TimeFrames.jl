@@ -54,6 +54,8 @@ tf = TimeFrame("5H")
 @test apply(Monthly(boundary=End), Date(2010, 2, 20)) == Date(2010, 2, 28)
 @test apply(Monthly(boundary=End), DateTime(2010, 2, 20)) == DateTime(2010, 2, 28, 23, 59, 59, 999)
 
+@test TimeFrame("3M", boundary=End) == Monthly(3, boundary=End)
+
 # Grouper
 d = Date(2016, 7, 20)
 dt = DateTime(2016, 7, 20, 13, 24, 35, 245)
