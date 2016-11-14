@@ -26,8 +26,14 @@ end
 Base.hash(tf::TimePeriodFrame, h::UInt) = hash(tf.time_period, hash(tf.boundary))
 Base.:(==)(tf1::TimePeriodFrame, tf2::TimePeriodFrame) = hash(tf1) == hash(tf2)
 
-DATE_PERIOD_STEP = Day(1)
-TIME_PERIOD_STEP = Millisecond(1)
+
+function period_step(::Type{Date})
+    Day(1)
+end
+
+function period_step(::Type{DateTime})
+    Millisecond(1)
+end
 
 Millisecondly = TimePeriodFrame{Dates.Millisecond}
 Secondly = TimePeriodFrame{Dates.Second}
@@ -44,21 +50,11 @@ function dt_grouper(tf::TimePeriodFrame)
     dt -> _d_f_boundary[tf.boundary](dt, tf.time_period)
 end
 
-function dt_grouper(tf::TimePeriodFrame, ::Type{Date})
+function dt_grouper(tf::TimePeriodFrame, t::Type)
     if tf.boundary == Begin
         dt -> _d_f_boundary[tf.boundary](dt, tf.time_period)
     elseif tf.boundary == End
-        dt -> _d_f_boundary[tf.boundary](dt, tf.time_period) - DATE_PERIOD_STEP
-    else
-        error("Unsupported boundary $(tf.boundary)")
-    end
-end
-
-function dt_grouper(tf::TimePeriodFrame, ::Type{DateTime})
-    if tf.boundary == Begin
-        dt -> _d_f_boundary[tf.boundary](dt, tf.time_period)
-    elseif tf.boundary == End
-        dt -> _d_f_boundary[tf.boundary](dt, tf.time_period) - TIME_PERIOD_STEP
+        dt -> _d_f_boundary[tf.boundary](dt, tf.time_period) - period_step(t)
     else
         error("Unsupported boundary $(tf.boundary)")
     end
@@ -139,7 +135,7 @@ _d_f_boundary = Dict(
     End::Boundary => ceil
 )
 
-function apply(tf, dt)
+function apply(tf::TimeFrame, dt)
     dt_grouper(tf, typeof(dt))(dt)
 end
 
