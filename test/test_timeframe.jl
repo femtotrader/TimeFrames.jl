@@ -1,8 +1,5 @@
-using TimeFrames: TimeFrame
-using TimeFrames: Yearly, Monthly, Weekly, Daily, Hourly, Minutely, Secondly, Millisecondly
+using TimeFrames
 using TimeFrames: shortcut
-using TimeFrames: Begin, End
-using TimeFrames: apply
 
 using Base.Test
 
@@ -107,3 +104,9 @@ tf = Yearly(10, boundary=End)
 
 tf = Minutely(15)
 @test apply(tf, dt) == DateTime(2016, 7, 20, 13, 15, 0, 0)
+
+
+# No timeframe
+tf = TimeFrame("")
+@test typeof(tf) == NoTimeFrame
+@test NoTimeFrame() == NoTimeFrame(1,2,3)

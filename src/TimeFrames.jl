@@ -4,7 +4,8 @@ using Base: Dates
 
 export TimeFrame, Boundary
 export Millisecondly, Secondly, Minutely, Hourly, Daily, Weekly, Monthly, Yearly
-export apply
+export NoTimeFrame
+export apply, shortcut
 export Begin, End
 
 abstract TimeFrame
@@ -21,6 +22,10 @@ immutable TimePeriodFrame{T} <: TimeFrame
     boundary::Boundary
     TimePeriodFrame(; boundary=Begin::Boundary) = new(1, boundary)
     TimePeriodFrame(n::Integer; boundary=Begin::Boundary) = new(n, boundary)
+end
+
+immutable NoTimeFrame <: TimeFrame
+    NoTimeFrame(args...; kwargs...) = new()
 end
 
 Base.hash(tf::TimePeriodFrame, h::UInt) = hash(tf.time_period, hash(tf.boundary))
@@ -61,12 +66,13 @@ function dt_grouper(tf::TimePeriodFrame, t::Type)
 end
 
 _D_STR2TIMEFRAME = Dict(
-    "Y"=>Yearly,
+    "Y"=>Yearly,  # may be named Annually
     "M"=>Monthly,
     "W"=>Weekly,
     "D"=>Daily,
     "H"=>Hourly,
     "T"=>Minutely,
+    ""=>NoTimeFrame
 )
 # Reverse key/value
 _D_TIMEFRAME2STR = Dict{DataType,String}()
