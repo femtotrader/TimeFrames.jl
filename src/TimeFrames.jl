@@ -1,11 +1,12 @@
 module TimeFrames
 
 using Base: Dates
+import Base: range
 
 export TimeFrame, Boundary
 export Millisecondly, Secondly, Minutely, Hourly, Daily, Weekly, Monthly, Yearly
 export NoTimeFrame
-export apply, shortcut
+export apply, range, shortcut
 export Begin, End
 
 abstract TimeFrame
@@ -143,6 +144,33 @@ _d_f_boundary = Dict(
 
 function apply(tf::TimeFrame, dt)
     dt_grouper(tf, typeof(dt))(dt)
+end
+
+typealias DateOrDateTime Union{Date,DateTime}
+
+function range(dt1::DateOrDateTime, tf::TimePeriodFrame, dt2::DateOrDateTime; apply_tf=true)
+    td = period_step(typeof(dt2))
+    if apply_tf
+        apply(tf, dt1):tf.time_period:apply(tf, dt2-td)
+    else
+        dt1:tf.time_period:dt2-td
+    end
+end
+
+function range(dt1::DateOrDateTime, td::Dates.Period, dt2::DateOrDateTime; apply_tf=true)
+    range(dt1, TimeFrame(td), dt2; apply_tf=apply_tf)
+end
+
+function range(dt1::DateOrDateTime, tf::TimePeriodFrame, len::Integer)
+    range(dt1, tf.time_period, len)
+end
+
+function range(tf::TimePeriodFrame, dt2::DateOrDateTime, len::Integer)
+    range(dt2 - len * tf.time_period, tf.time_period, len)
+end
+
+function range(td::Dates.Period, dt2::DateOrDateTime, len::Integer)
+    range(TimeFrame(td), dt2, len)
 end
 
 

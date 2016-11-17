@@ -105,8 +105,38 @@ tf = Yearly(10, boundary=End)
 tf = Minutely(15)
 @test apply(tf, dt) == DateTime(2016, 7, 20, 13, 15, 0, 0)
 
-
 # No timeframe
 tf = TimeFrame("")
 @test typeof(tf) == NoTimeFrame
 @test NoTimeFrame() == NoTimeFrame(1,2,3)
+
+# range
+dt1 = DateTime(2010, 1, 1, 20)
+dt2 = DateTime(2010, 1, 14, 16)
+for tf in [Dates.Day(1), Daily(1)]  # Should works both with Period and TimeFrame
+    rng = range(dt1, tf, dt2)
+    @test rng[1] == DateTime(2010, 1, 1)
+    @test rng[end] == DateTime(2010, 1, 14)
+
+    rng = range(dt1, tf, dt2, apply_tf=false)
+    @test rng[1] == DateTime(2010, 1, 1, 20)
+    @test rng[end] == DateTime(2010, 1, 13, 20)
+end
+
+for tf in [Dates.Day(1), Daily(1)]  # Should works both with Period and TimeFrame
+    N = 5
+    rng = range(dt1, tf, N)
+    @test length(rng) == N
+    @test rng[1] == DateTime(2010, 1, 1, 20)
+    @test rng[end] == DateTime(2010, 1, 5, 20)
+end
+
+
+for tf in [Dates.Day(1), Daily(1)]  # Should works both with Period and TimeFrame
+#tf = Daily(1)
+    N = 5
+    rng = range(tf, dt2, N)
+    @test length(rng) == N
+    @test rng[end] == DateTime(2010, 1, 13, 16)
+    @test rng[1] == DateTime(2010, 1, 9, 16)
+end
