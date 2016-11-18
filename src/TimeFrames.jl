@@ -1,6 +1,5 @@
 module TimeFrames
 
-using Base: Dates
 import Base: range
 
 export TimeFrame, Boundary
@@ -24,14 +23,14 @@ abstract AbstractPeriodFrame <: TimeFrame
 abstract AbstractTimePeriodFrame <: AbstractPeriodFrame
 abstract AbstractDatePeriodFrame <: AbstractPeriodFrame
 
-immutable TimePeriodFrame{T <: TimePeriod} <: AbstractTimePeriodFrame
+immutable TimePeriodFrame{T <: Dates.TimePeriod} <: AbstractTimePeriodFrame
     time_period::T
     boundary::Boundary
     TimePeriodFrame(; boundary=Begin::Boundary) = new(1, boundary)
     TimePeriodFrame(n::Integer; boundary=Begin::Boundary) = new(n, boundary)
 end
 
-immutable DatePeriodFrame{T <: DatePeriod} <: AbstractDatePeriodFrame
+immutable DatePeriodFrame{T <: Dates.DatePeriod} <: AbstractDatePeriodFrame
     time_period::T
     boundary::Boundary
     DatePeriodFrame(; boundary=Begin::Boundary) = new(1, boundary)
@@ -48,81 +47,81 @@ Base.:(==)(tf1::TimePeriodFrame, tf2::TimePeriodFrame) = hash(tf1) == hash(tf2)
 
 
 function period_step(::Type{Date})
-    Day(1)
+    Dates.Day(1)
 end
 
 function period_step(::Type{DateTime})
-    Millisecond(1)
+    Dates.Millisecond(1)
 end
 
 immutable Millisecondly <: AbstractTimePeriodFrame
-    time_period::TimePeriod
+    time_period::Dates.TimePeriod
     boundary::Boundary
-    Millisecondly() = new(Millisecond(1), Begin)
-    Millisecondly(n::Integer) = new(Millisecond(n), Begin)
+    Millisecondly() = new(Dates.Millisecond(1), Begin)
+    Millisecondly(n::Integer) = new(Dates.Millisecond(n), Begin)
 end
 
 immutable Secondly <: AbstractTimePeriodFrame
-    time_period::TimePeriod
+    time_period::Dates.TimePeriod
     boundary::Boundary
-    Secondly() = new(Second(1), Begin)
-    Secondly(n::Integer) = new(Second(n), Begin)
+    Secondly() = new(Dates.Second(1), Begin)
+    Secondly(n::Integer) = new(Dates.Second(n), Begin)
 end
 
 immutable Minutely <: AbstractTimePeriodFrame
-    time_period::TimePeriod
+    time_period::Dates.TimePeriod
     boundary::Boundary
-    Minutely() = new(Minute(1), Begin)
-    Minutely(n::Integer) = new(Minute(n), Begin)
+    Minutely() = new(Dates.Minute(1), Begin)
+    Minutely(n::Integer) = new(Dates.Minute(n), Begin)
 end
 
 immutable Hourly <: AbstractTimePeriodFrame
-    time_period::TimePeriod
+    time_period::Dates.TimePeriod
     boundary::Boundary
-    Hourly() = new(Hour(1), Begin)
-    Hourly(n::Integer) = new(Hour(n), Begin)
+    Hourly() = new(Dates.Hour(1), Begin)
+    Hourly(n::Integer) = new(Dates.Hour(n), Begin)
 end
 
 immutable Daily <: AbstractDatePeriodFrame
-    time_period::DatePeriod
+    time_period::Dates.DatePeriod
     boundary::Boundary
-    Daily() = new(Day(1), Begin)
-    Daily(n::Integer) = new(Day(n), Begin)
+    Daily() = new(Dates.Day(1), Begin)
+    Daily(n::Integer) = new(Dates.Day(n), Begin)
 end
 
 immutable Weekly <: AbstractDatePeriodFrame
-    time_period::DatePeriod
+    time_period::Dates.DatePeriod
     boundary::Boundary
-    Weekly() = new(Week(1), Begin)
-    Weekly(n::Integer) = new(Week(n), Begin)
+    Weekly() = new(Dates.Week(1), Begin)
+    Weekly(n::Integer) = new(Dates.Week(n), Begin)
 end
 
 immutable Monthly <: AbstractDatePeriodFrame
-    time_period::DatePeriod
+    time_period::Dates.DatePeriod
     boundary::Boundary
-    Monthly() = new(Month(1), End)
-    Monthly(n::Integer) = new(Month(n), End)
+    Monthly() = new(Dates.Month(1), End)
+    Monthly(n::Integer) = new(Dates.Month(n), End)
 end
 
 immutable MonthlyStart <: AbstractDatePeriodFrame
-    time_period::DatePeriod
+    time_period::Dates.DatePeriod
     boundary::Boundary
-    MonthlyStart() = new(Month(1), Begin)
-    MonthlyStart(n::Integer) = new(Month(n), Begin)
+    MonthlyStart() = new(Dates.Month(1), Begin)
+    MonthlyStart(n::Integer) = new(Dates.Month(n), Begin)
 end
 
 immutable Yearly <: AbstractDatePeriodFrame
-    time_period::DatePeriod
+    time_period::Dates.DatePeriod
     boundary::Boundary
-    Yearly() = new(Year(1), End)
-    Yearly(n::Integer) = new(Year(n), End)
+    Yearly() = new(Dates.Year(1), End)
+    Yearly(n::Integer) = new(Dates.Year(n), End)
 end
 
 immutable YearlyStart <: AbstractDatePeriodFrame
-    time_period::DatePeriod
+    time_period::Dates.DatePeriod
     boundary::Boundary
-    YearlyStart() = new(Year(1), Begin)
-    YearlyStart(n::Integer) = new(Year(n), Begin)
+    YearlyStart() = new(Dates.Year(1), Begin)
+    YearlyStart(n::Integer) = new(Dates.Year(n), Begin)
 end
 
 TimeFrame() = Secondly(0)
@@ -150,6 +149,9 @@ _D_STR2TIMEFRAME = Dict(
     "D"=>Daily,
     "H"=>Hourly,
     "T"=>Minutely,
+    "S"=>Secondly,
+    "L"=>Millisecondly,
+    #"U"=>Microsecondly,
     ""=>NoTimeFrame
 )
 # Reverse key/value
@@ -205,12 +207,12 @@ function TimeFrame(f_group::Function)
     CustomTimeFrame(f_group)
 end
 
-function TimeFrame(td::TimePeriod; boundary=Begin::Boundary)
+function TimeFrame(td::Dates.TimePeriod; boundary=Begin::Boundary)
     T = typeof(td)
     TimePeriodFrame{T}(td.value, boundary=boundary)
 end
 
-function TimeFrame(td::DatePeriod; boundary=Begin::Boundary)
+function TimeFrame(td::Dates.DatePeriod; boundary=Begin::Boundary)
     T = typeof(td)
     DatePeriodFrame{T}(td.value, boundary=boundary)
 end
