@@ -3,8 +3,9 @@ module TimeFrames
 import Base: range
 
 export TimeFrame, Boundary
-export Monthly, Yearly, MonthlyStart, YearlyStart
-export Millisecondly, Secondly, Minutely, Hourly, Daily, Weekly
+export YearBegin, YearEnd
+export MonthBegin, MonthEnd
+export Millisecond, Second, Minute, Hour, Day, Week
 export NoTimeFrame
 export apply, range, shortcut
 export Begin, End
@@ -54,74 +55,74 @@ function period_step(::Type{DateTime})
     Dates.Millisecond(1)
 end
 
-immutable Millisecondly <: AbstractTimePeriodFrame
+immutable Millisecond <: AbstractTimePeriodFrame
     time_period::Dates.TimePeriod
     boundary::Boundary
-    Millisecondly() = new(Dates.Millisecond(1), Begin)
-    Millisecondly(n::Integer) = new(Dates.Millisecond(n), Begin)
+    Millisecond() = new(Dates.Millisecond(1), Begin)
+    Millisecond(n::Integer) = new(Dates.Millisecond(n), Begin)
 end
 
-immutable Secondly <: AbstractTimePeriodFrame
+immutable Second <: AbstractTimePeriodFrame
     time_period::Dates.TimePeriod
     boundary::Boundary
-    Secondly() = new(Dates.Second(1), Begin)
-    Secondly(n::Integer) = new(Dates.Second(n), Begin)
+    Second() = new(Dates.Second(1), Begin)
+    Second(n::Integer) = new(Dates.Second(n), Begin)
 end
 
-immutable Minutely <: AbstractTimePeriodFrame
+immutable Minute <: AbstractTimePeriodFrame
     time_period::Dates.TimePeriod
     boundary::Boundary
-    Minutely() = new(Dates.Minute(1), Begin)
-    Minutely(n::Integer) = new(Dates.Minute(n), Begin)
+    Minute() = new(Dates.Minute(1), Begin)
+    Minute(n::Integer) = new(Dates.Minute(n), Begin)
 end
 
-immutable Hourly <: AbstractTimePeriodFrame
+immutable Hour <: AbstractTimePeriodFrame
     time_period::Dates.TimePeriod
     boundary::Boundary
-    Hourly() = new(Dates.Hour(1), Begin)
-    Hourly(n::Integer) = new(Dates.Hour(n), Begin)
+    Hour() = new(Dates.Hour(1), Begin)
+    Hour(n::Integer) = new(Dates.Hour(n), Begin)
 end
 
-immutable Daily <: AbstractDatePeriodFrame
+immutable Day <: AbstractDatePeriodFrame
     time_period::Dates.DatePeriod
     boundary::Boundary
-    Daily() = new(Dates.Day(1), Begin)
-    Daily(n::Integer) = new(Dates.Day(n), Begin)
+    Day() = new(Dates.Day(1), Begin)
+    Day(n::Integer) = new(Dates.Day(n), Begin)
 end
 
-immutable Weekly <: AbstractDatePeriodFrame
+immutable Week <: AbstractDatePeriodFrame
     time_period::Dates.DatePeriod
     boundary::Boundary
-    Weekly() = new(Dates.Week(1), Begin)
-    Weekly(n::Integer) = new(Dates.Week(n), Begin)
+    Week() = new(Dates.Week(1), Begin)
+    Week(n::Integer) = new(Dates.Week(n), Begin)
 end
 
-immutable Monthly <: AbstractDatePeriodFrame
+immutable MonthEnd <: AbstractDatePeriodFrame
     time_period::Dates.DatePeriod
     boundary::Boundary
-    Monthly() = new(Dates.Month(1), End)
-    Monthly(n::Integer) = new(Dates.Month(n), End)
+    MonthEnd() = new(Dates.Month(1), End)
+    MonthEnd(n::Integer) = new(Dates.Month(n), End)
 end
 
-immutable MonthlyStart <: AbstractDatePeriodFrame
+immutable MonthBegin <: AbstractDatePeriodFrame
     time_period::Dates.DatePeriod
     boundary::Boundary
-    MonthlyStart() = new(Dates.Month(1), Begin)
-    MonthlyStart(n::Integer) = new(Dates.Month(n), Begin)
+    MonthBegin() = new(Dates.Month(1), Begin)
+    MonthBegin(n::Integer) = new(Dates.Month(n), Begin)
 end
 
-immutable Yearly <: AbstractDatePeriodFrame
+immutable YearEnd <: AbstractDatePeriodFrame
     time_period::Dates.DatePeriod
     boundary::Boundary
-    Yearly() = new(Dates.Year(1), End)
-    Yearly(n::Integer) = new(Dates.Year(n), End)
+    YearEnd() = new(Dates.Year(1), End)
+    YearEnd(n::Integer) = new(Dates.Year(n), End)
 end
 
-immutable YearlyStart <: AbstractDatePeriodFrame
+immutable YearBegin <: AbstractDatePeriodFrame
     time_period::Dates.DatePeriod
     boundary::Boundary
-    YearlyStart() = new(Dates.Year(1), Begin)
-    YearlyStart(n::Integer) = new(Dates.Year(n), Begin)
+    YearBegin() = new(Dates.Year(1), Begin)
+    YearBegin(n::Integer) = new(Dates.Year(n), Begin)
 end
 
 TimeFrame() = Secondly(0)
@@ -141,17 +142,17 @@ function dt_grouper(tf::AbstractPeriodFrame, t::Type)
 end
 
 _D_STR2TIMEFRAME = Dict(
-    "A"=>Yearly,
-    "AS"=>YearlyStart,
-    "M"=>Monthly,
-    "MS"=>MonthlyStart,
-    "W"=>Weekly,
-    "D"=>Daily,
-    "H"=>Hourly,
-    "T"=>Minutely,
-    "S"=>Secondly,
-    "L"=>Millisecondly,
-    #"U"=>Microsecondly,
+    "A"=>YearEnd,
+    "AS"=>YearBegin,
+    "M"=>MonthEnd,
+    "MS"=>MonthBegin,
+    "W"=>Week,
+    "D"=>Day,
+    "H"=>Hour,
+    "T"=>Minute,
+    "S"=>Second,
+    "L"=>Millisecond,
+    #"U"=>Microsecond,
     ""=>NoTimeFrame
 )
 # Reverse key/value
@@ -161,7 +162,7 @@ for (key, typ) in _D_STR2TIMEFRAME
 end
 # Additional shortcuts
 _D_STR2TIMEFRAME_ADDITIONAL = Dict(
-    "MIN"=>Minutely,
+    "MIN"=>Minute,
 )
 for (key, value) in _D_STR2TIMEFRAME_ADDITIONAL
     _D_STR2TIMEFRAME[key] = value

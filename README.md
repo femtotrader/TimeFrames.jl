@@ -22,7 +22,7 @@ julia> Pkg.add("TimeFrames")
 julia> using TimeFrames
 
 julia> tf = TimeFrame("5T")
-TimeFrames.TimePeriodFrame{Base.Dates.Minute}(5 minutes,Begin::TimeFrames.Boundary = 1)
+TimeFrames.Minute(5 minutes,Begin::TimeFrames.Boundary = 1)
 
 julia> apply(tf, DateTime(2016, 9, 11, 20, 9))
 2016-09-11T20:05:00
