@@ -2,6 +2,7 @@ using TimeFrames
 using TimeFrames: shortcut
 
 using Base.Test
+using Base: Dates
 
 tf = Yearly()
 @test tf.time_period.value == 1
@@ -47,11 +48,28 @@ tf = TimeFrame("5H")
 @test typeof(tf) == Hourly
 
 # Boundary
-@test Yearly(boundary=End) != Yearly(boundary=Begin)
-@test apply(Monthly(boundary=End), Date(2010, 2, 20)) == Date(2010, 2, 28)
-@test apply(Monthly(boundary=End), DateTime(2010, 2, 20)) == DateTime(2010, 2, 28, 23, 59, 59, 999)
+@test Yearly() != YearlyStart()
+@test apply(Monthly(), Date(2010, 2, 20)) == Date(2010, 2, 28)
+@test apply(Monthly(), DateTime(2010, 2, 20)) == DateTime(2010, 2, 28, 23, 59, 59, 999)
 
-@test TimeFrame("3M", boundary=End) == Monthly(3, boundary=End)
+tf = TimeFrame("3A")
+@test tf == Yearly(3)
+@test tf.time_period == Year(3)
+@test tf.boundary == End
+
+tf = TimeFrame("3AS")
+@test tf == Yearly(3)
+@test tf.time_period == Year(3)
+#@test tf.boundary == Begin  # ToFix
+
+tf = TimeFrame("3M")
+@test tf == Monthly(3)
+@test tf.time_period == Month(3)
+@test tf.boundary == End
+
+tf = TimeFrame("3MS")
+@test tf.time_period == Month(3)
+#@test tf.boundary == Begin  # ToFix
 
 # Grouper
 d = Date(2016, 7, 20)
@@ -66,12 +84,17 @@ tf = TimeFrame(Dates.Minute(15))  # TimePeriodFrame using TimePeriod
 tf = TimeFrame(Dates.Day(1))  # TimePeriodFrame using DatePeriod
 @test apply(tf, dt) == DateTime(2016, 7, 20, 0, 0, 0, 0)
 
-tf = Yearly()
+tf = YearlyStart()
 #@test apply(tf, dt) == DateTime(2016, 1, 1, 0, 0, 0, 0)
 @test apply(tf, dt) == Date(2016, 1, 1)
 #@test typeof(f_group(dt)) == Date
 
-tf = Monthly()
+#tf = Yearly(boundary=End)
+#@test apply(tf, dt) == DateTime(2016, 1, 1, 0, 0, 0, 0)
+#@test apply(tf, dt) == Date(2016, 1, 1)
+
+
+tf = MonthlyStart()
 #@test apply(tf, dt) == DateTime(2016, 7, 1, 0, 0, 0, 0)
 @test apply(tf, dt) == Date(2016, 7, 1)
 
@@ -95,10 +118,10 @@ tf = Secondly()
 tf = Millisecondly()
 @test apply(tf, dt) == DateTime(2016, 7, 20, 13, 24, 35, 245)
 
-tf = Yearly(10)
+tf = YearlyStart(10)
 @test apply(tf, dt) == DateTime(2010, 1, 1, 0, 0, 0, 0)
 
-tf = Yearly(10, boundary=End)
+tf = Yearly(10)
 @test apply(tf, d) == DateTime(2019, 12, 31)
 @test apply(tf, dt) == DateTime(2019, 12, 31, 23, 59, 59, 999)
 

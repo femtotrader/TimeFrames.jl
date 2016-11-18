@@ -4,7 +4,8 @@ using Base: Dates
 import Base: range
 
 export TimeFrame, Boundary
-export Millisecondly, Secondly, Minutely, Hourly, Daily, Weekly, Monthly, Yearly
+export Monthly, Yearly, MonthlyStart, YearlyStart
+export Millisecondly, Secondly, Minutely, Hourly, Daily, Weekly
 export NoTimeFrame
 export apply, range, shortcut
 export Begin, End
@@ -19,17 +20,18 @@ abstract TimeFrame
 
 #T should be Dates.TimePeriod
 
-abstract PeriodFrame <: TimeFrame
+abstract AbstractPeriodFrame <: TimeFrame
+abstract AbstractTimePeriodFrame <: AbstractPeriodFrame
+abstract AbstractDatePeriodFrame <: AbstractPeriodFrame
 
-
-immutable TimePeriodFrame{T <: TimePeriod} <: PeriodFrame
+immutable TimePeriodFrame{T <: TimePeriod} <: AbstractTimePeriodFrame
     time_period::T
     boundary::Boundary
     TimePeriodFrame(; boundary=Begin::Boundary) = new(1, boundary)
     TimePeriodFrame(n::Integer; boundary=Begin::Boundary) = new(n, boundary)
 end
 
-immutable DatePeriodFrame{T <: DatePeriod} <: PeriodFrame
+immutable DatePeriodFrame{T <: DatePeriod} <: AbstractDatePeriodFrame
     time_period::T
     boundary::Boundary
     DatePeriodFrame(; boundary=Begin::Boundary) = new(1, boundary)
@@ -53,22 +55,83 @@ function period_step(::Type{DateTime})
     Millisecond(1)
 end
 
-Millisecondly = TimePeriodFrame{Dates.Millisecond}
-Secondly = TimePeriodFrame{Dates.Second}
-Minutely = TimePeriodFrame{Dates.Minute}
-Hourly = TimePeriodFrame{Dates.Hour}
-Daily = DatePeriodFrame{Dates.Day}
-Weekly = DatePeriodFrame{Dates.Week}
-Monthly = DatePeriodFrame{Dates.Month}
-Yearly = DatePeriodFrame{Dates.Year}
+immutable Millisecondly <: AbstractTimePeriodFrame
+    time_period::TimePeriod
+    boundary::Boundary
+    Millisecondly() = new(Millisecond(1), Begin)
+    Millisecondly(n::Integer) = new(n, Begin)
+end
+
+immutable Secondly <: AbstractTimePeriodFrame
+    time_period::TimePeriod
+    boundary::Boundary
+    Secondly() = new(Second(1), Begin)
+    Secondly(n::Integer) = new(Secondly(n), Begin)
+end
+
+immutable Minutely <: AbstractTimePeriodFrame
+    time_period::TimePeriod
+    boundary::Boundary
+    Minutely() = new(Minute(1), Begin)
+    Minutely(n::Integer) = new(Minute(n), Begin)
+end
+
+immutable Hourly <: AbstractTimePeriodFrame
+    time_period::TimePeriod
+    boundary::Boundary
+    Hourly() = new(Hour(1), Begin)
+    Hourly(n::Integer) = new(Hour(n), Begin)
+end
+
+immutable Daily <: AbstractDatePeriodFrame
+    time_period::DatePeriod
+    boundary::Boundary
+    Daily() = new(Day(1), Begin)
+    Daily(n::Integer) = new(Day(n), Begin)
+end
+
+immutable Weekly <: AbstractDatePeriodFrame
+    time_period::DatePeriod
+    boundary::Boundary
+    Weekly() = new(Week(1), Begin)
+    Weekly(n::Integer) = new(Week(n), Begin)
+end
+
+immutable Monthly <: AbstractDatePeriodFrame
+    time_period::DatePeriod
+    boundary::Boundary
+    Monthly() = new(Month(1), End)
+    Monthly(n::Integer) = new(Month(n), End)
+end
+
+immutable MonthlyStart <: AbstractDatePeriodFrame
+    time_period::DatePeriod
+    boundary::Boundary
+    MonthlyStart() = new(Month(1), Begin)
+    MonthlyStart(n::Integer) = new(Month(n), Begin)
+end
+
+immutable Yearly <: AbstractDatePeriodFrame
+    time_period::DatePeriod
+    boundary::Boundary
+    Yearly() = new(Year(1), End)
+    Yearly(n::Integer) = new(Year(n), End)
+end
+
+immutable YearlyStart <: AbstractDatePeriodFrame
+    time_period::DatePeriod
+    boundary::Boundary
+    YearlyStart() = new(Year(1), Begin)
+    YearlyStart(n::Integer) = new(Year(n), Begin)
+end
 
 TimeFrame() = Secondly(0)
 
-function dt_grouper(tf::PeriodFrame)
+function dt_grouper(tf::AbstractPeriodFrame)
     dt -> _d_f_boundary[tf.boundary](dt, tf.time_period)
 end
 
-function dt_grouper(tf::PeriodFrame, t::Type)
+function dt_grouper(tf::AbstractPeriodFrame, t::Type)
     if tf.boundary == Begin
         dt -> _d_f_boundary[tf.boundary](dt, tf.time_period)
     elseif tf.boundary == End
@@ -79,22 +142,24 @@ function dt_grouper(tf::PeriodFrame, t::Type)
 end
 
 _D_STR2TIMEFRAME = Dict(
-    "Y"=>Yearly,  # may be named Annually
-    "M"=>Monthly,
-    "W"=>Weekly,
-    "D"=>Daily,
-    "H"=>Hourly,
-    "T"=>Minutely,
-    ""=>NoTimeFrame
+    "A"=>(Yearly, End),
+    "AS"=>(Yearly, Begin),
+    "M"=>(Monthly, End),
+    "MS"=>(Monthly, Begin),
+    "W"=>(Weekly, End),
+    "D"=>(Daily, Begin),
+    "H"=>(Hourly, Begin),
+    "T"=>(Minutely, Begin),
+    ""=>(NoTimeFrame, Begin)
 )
 # Reverse key/value
 _D_TIMEFRAME2STR = Dict{DataType,String}()
-for (key, value) in _D_STR2TIMEFRAME
-    _D_TIMEFRAME2STR[value] = key
+for (key, (typ, boundary)) in _D_STR2TIMEFRAME
+    _D_TIMEFRAME2STR[typ] = key
 end
 # Additional shortcuts
 _D_STR2TIMEFRAME_ADDITIONAL = Dict(
-    "MIN"=>Minutely,
+    "MIN"=>(Minutely, Begin),
 )
 for (key, value) in _D_STR2TIMEFRAME_ADDITIONAL
     _D_STR2TIMEFRAME[key] = value
@@ -118,17 +183,17 @@ function TimeFrame(s::String; boundary=UndefBoundary)
         error("Can't parse '$s' to TimeFrame")
     else
         s_freq = uppercase(m[2])
-        tf_typ = _D_STR2TIMEFRAME[s_freq]
+        tf_typ, bound_d = _D_STR2TIMEFRAME[s_freq]
         if m[1] != ""
             value = parse(Int, m[1])
         else
             value = 1
         end
-        if boundary == UndefBoundary
-            tf_typ(value)
-        else
-            tf_typ(value, boundary=boundary)
+        tf = tf_typ(value)
+        if boundary != UndefBoundary
+            tf.boundary = boundary
         end
+        tf
     end
 end
 
@@ -165,7 +230,7 @@ end
 
 typealias DateOrDateTime Union{Date,DateTime}
 
-function range(dt1::DateOrDateTime, tf::PeriodFrame, dt2::DateOrDateTime; apply_tf=true)
+function range(dt1::DateOrDateTime, tf::AbstractPeriodFrame, dt2::DateOrDateTime; apply_tf=true)
     td = period_step(typeof(dt2))
     if apply_tf
         apply(tf, dt1):tf.time_period:apply(tf, dt2-td)
@@ -178,11 +243,11 @@ function range(dt1::DateOrDateTime, td::Dates.Period, dt2::DateOrDateTime; apply
     range(dt1, TimeFrame(td), dt2; apply_tf=apply_tf)
 end
 
-function range(dt1::DateOrDateTime, tf::PeriodFrame, len::Integer)
+function range(dt1::DateOrDateTime, tf::AbstractPeriodFrame, len::Integer)
     range(dt1, tf.time_period, len)
 end
 
-function range(tf::PeriodFrame, dt2::DateOrDateTime, len::Integer)
+function range(tf::AbstractPeriodFrame, dt2::DateOrDateTime, len::Integer)
     range(dt2 - len * tf.time_period, tf.time_period, len)
 end
 
