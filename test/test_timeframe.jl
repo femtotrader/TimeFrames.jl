@@ -58,7 +58,7 @@ tf = TimeFrame("3A")
 @test tf.boundary == End
 
 tf = TimeFrame("3AS")
-@test tf == Yearly(3)
+@test tf == YearlyStart(3)
 @test tf.time_period == Year(3)
 #@test tf.boundary == Begin  # ToFix
 
@@ -68,6 +68,7 @@ tf = TimeFrame("3M")
 @test tf.boundary == End
 
 tf = TimeFrame("3MS")
+@test tf == MonthlyStart(3)
 @test tf.time_period == Month(3)
 #@test tf.boundary == Begin  # ToFix
 

@@ -142,24 +142,24 @@ function dt_grouper(tf::AbstractPeriodFrame, t::Type)
 end
 
 _D_STR2TIMEFRAME = Dict(
-    "A"=>(Yearly, End),
-    "AS"=>(Yearly, Begin),
-    "M"=>(Monthly, End),
-    "MS"=>(Monthly, Begin),
-    "W"=>(Weekly, End),
-    "D"=>(Daily, Begin),
-    "H"=>(Hourly, Begin),
-    "T"=>(Minutely, Begin),
-    ""=>(NoTimeFrame, Begin)
+    "A"=>Yearly,
+    "AS"=>YearlyStart,
+    "M"=>Monthly,
+    "MS"=>MonthlyStart,
+    "W"=>Weekly,
+    "D"=>Daily,
+    "H"=>Hourly,
+    "T"=>Minutely,
+    ""=>NoTimeFrame
 )
 # Reverse key/value
 _D_TIMEFRAME2STR = Dict{DataType,String}()
-for (key, (typ, boundary)) in _D_STR2TIMEFRAME
+for (key, typ) in _D_STR2TIMEFRAME
     _D_TIMEFRAME2STR[typ] = key
 end
 # Additional shortcuts
 _D_STR2TIMEFRAME_ADDITIONAL = Dict(
-    "MIN"=>(Minutely, Begin),
+    "MIN"=>Minutely,
 )
 for (key, value) in _D_STR2TIMEFRAME_ADDITIONAL
     _D_STR2TIMEFRAME[key] = value
@@ -183,7 +183,7 @@ function TimeFrame(s::String; boundary=UndefBoundary)
         error("Can't parse '$s' to TimeFrame")
     else
         s_freq = uppercase(m[2])
-        tf_typ, bound_d = _D_STR2TIMEFRAME[s_freq]
+        tf_typ = _D_STR2TIMEFRAME[s_freq]
         if m[1] != ""
             value = parse(Int, m[1])
         else
