@@ -18,12 +18,24 @@ abstract TimeFrame
 )
 
 #T should be Dates.TimePeriod
-immutable TimePeriodFrame{T} <: TimeFrame
+
+abstract PeriodFrame <: TimeFrame
+
+
+immutable TimePeriodFrame{T <: TimePeriod} <: PeriodFrame
     time_period::T
     boundary::Boundary
     TimePeriodFrame(; boundary=Begin::Boundary) = new(1, boundary)
     TimePeriodFrame(n::Integer; boundary=Begin::Boundary) = new(n, boundary)
 end
+
+immutable DatePeriodFrame{T <: DatePeriod} <: PeriodFrame
+    time_period::T
+    boundary::Boundary
+    DatePeriodFrame(; boundary=Begin::Boundary) = new(1, boundary)
+    DatePeriodFrame(n::Integer; boundary=Begin::Boundary) = new(n, boundary)
+end
+
 
 immutable NoTimeFrame <: TimeFrame
     NoTimeFrame(args...; kwargs...) = new()
@@ -45,18 +57,18 @@ Millisecondly = TimePeriodFrame{Dates.Millisecond}
 Secondly = TimePeriodFrame{Dates.Second}
 Minutely = TimePeriodFrame{Dates.Minute}
 Hourly = TimePeriodFrame{Dates.Hour}
-Daily = TimePeriodFrame{Dates.Day}
-Weekly = TimePeriodFrame{Dates.Week}
-Monthly = TimePeriodFrame{Dates.Month}
-Yearly = TimePeriodFrame{Dates.Year}
+Daily = DatePeriodFrame{Dates.Day}
+Weekly = DatePeriodFrame{Dates.Week}
+Monthly = DatePeriodFrame{Dates.Month}
+Yearly = DatePeriodFrame{Dates.Year}
 
 TimeFrame() = Secondly(0)
 
-function dt_grouper(tf::TimePeriodFrame)
+function dt_grouper(tf::PeriodFrame)
     dt -> _d_f_boundary[tf.boundary](dt, tf.time_period)
 end
 
-function dt_grouper(tf::TimePeriodFrame, t::Type)
+function dt_grouper(tf::PeriodFrame, t::Type)
     if tf.boundary == Begin
         dt -> _d_f_boundary[tf.boundary](dt, tf.time_period)
     elseif tf.boundary == End
@@ -128,9 +140,14 @@ function TimeFrame(f_group::Function)
     CustomTimeFrame(f_group)
 end
 
-function TimeFrame(td::Dates.Period; boundary=Begin::Boundary)
+function TimeFrame(td::TimePeriod; boundary=Begin::Boundary)
     T = typeof(td)
     TimePeriodFrame{T}(td.value, boundary=boundary)
+end
+
+function TimeFrame(td::DatePeriod; boundary=Begin::Boundary)
+    T = typeof(td)
+    DatePeriodFrame{T}(td.value, boundary=boundary)
 end
 
 function dt_grouper(tf::CustomTimeFrame, ::Type)
@@ -148,7 +165,7 @@ end
 
 typealias DateOrDateTime Union{Date,DateTime}
 
-function range(dt1::DateOrDateTime, tf::TimePeriodFrame, dt2::DateOrDateTime; apply_tf=true)
+function range(dt1::DateOrDateTime, tf::PeriodFrame, dt2::DateOrDateTime; apply_tf=true)
     td = period_step(typeof(dt2))
     if apply_tf
         apply(tf, dt1):tf.time_period:apply(tf, dt2-td)
@@ -161,17 +178,16 @@ function range(dt1::DateOrDateTime, td::Dates.Period, dt2::DateOrDateTime; apply
     range(dt1, TimeFrame(td), dt2; apply_tf=apply_tf)
 end
 
-function range(dt1::DateOrDateTime, tf::TimePeriodFrame, len::Integer)
+function range(dt1::DateOrDateTime, tf::PeriodFrame, len::Integer)
     range(dt1, tf.time_period, len)
 end
 
-function range(tf::TimePeriodFrame, dt2::DateOrDateTime, len::Integer)
+function range(tf::PeriodFrame, dt2::DateOrDateTime, len::Integer)
     range(dt2 - len * tf.time_period, tf.time_period, len)
 end
 
 function range(td::Dates.Period, dt2::DateOrDateTime, len::Integer)
     range(TimeFrame(td), dt2, len)
 end
-
 
 end # module

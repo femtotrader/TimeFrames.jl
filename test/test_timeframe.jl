@@ -123,6 +123,7 @@ for tf in [Dates.Day(1), Daily(1)]  # Should works both with Period and TimeFram
     @test rng[end] == DateTime(2010, 1, 13, 20)
 end
 
+
 for tf in [Dates.Day(1), Daily(1)]  # Should works both with Period and TimeFrame
     N = 5
     rng = range(dt1, tf, N)
@@ -133,7 +134,6 @@ end
 
 
 for tf in [Dates.Day(1), Daily(1)]  # Should works both with Period and TimeFrame
-#tf = Daily(1)
     N = 5
     rng = range(tf, dt2, N)
     @test length(rng) == N
