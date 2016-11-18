@@ -59,14 +59,14 @@ immutable Millisecondly <: AbstractTimePeriodFrame
     time_period::TimePeriod
     boundary::Boundary
     Millisecondly() = new(Millisecond(1), Begin)
-    Millisecondly(n::Integer) = new(n, Begin)
+    Millisecondly(n::Integer) = new(Millisecond(n), Begin)
 end
 
 immutable Secondly <: AbstractTimePeriodFrame
     time_period::TimePeriod
     boundary::Boundary
     Secondly() = new(Second(1), Begin)
-    Secondly(n::Integer) = new(Secondly(n), Begin)
+    Secondly(n::Integer) = new(Second(n), Begin)
 end
 
 immutable Minutely <: AbstractTimePeriodFrame
