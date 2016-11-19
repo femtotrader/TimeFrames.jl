@@ -1,6 +1,7 @@
 module TimeFrames
 
 import Base: range
+using Base.Dates: TimeType
 
 export TimeFrame, Boundary
 export YearBegin, YearEnd
@@ -231,9 +232,7 @@ function apply(tf::TimeFrame, dt)
     dt_grouper(tf, typeof(dt))(dt)
 end
 
-typealias DateOrDateTime Union{Date,DateTime}
-
-function range(dt1::DateOrDateTime, tf::AbstractPeriodFrame, dt2::DateOrDateTime; apply_tf=true)
+function range(dt1::TimeType, tf::AbstractPeriodFrame, dt2::TimeType; apply_tf=true)
     td = period_step(typeof(dt2))
     if apply_tf
         apply(tf, dt1):tf.time_period:apply(tf, dt2-td)
@@ -242,19 +241,19 @@ function range(dt1::DateOrDateTime, tf::AbstractPeriodFrame, dt2::DateOrDateTime
     end
 end
 
-function range(dt1::DateOrDateTime, td::Dates.Period, dt2::DateOrDateTime; apply_tf=true)
+function range(dt1::TimeType, td::Dates.Period, dt2::TimeType; apply_tf=true)
     range(dt1, TimeFrame(td), dt2; apply_tf=apply_tf)
 end
 
-function range(dt1::DateOrDateTime, tf::AbstractPeriodFrame, len::Integer)
+function range(dt1::TimeType, tf::AbstractPeriodFrame, len::Integer)
     range(dt1, tf.time_period, len)
 end
 
-function range(tf::AbstractPeriodFrame, dt2::DateOrDateTime, len::Integer)
+function range(tf::AbstractPeriodFrame, dt2::TimeType, len::Integer)
     range(dt2 - len * tf.time_period, tf.time_period, len)
 end
 
-function range(td::Dates.Period, dt2::DateOrDateTime, len::Integer)
+function range(td::Dates.Period, dt2::TimeType, len::Integer)
     range(TimeFrame(td), dt2, len)
 end
 
