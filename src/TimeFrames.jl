@@ -26,14 +26,14 @@ abstract AbstractTimePeriodFrame <: AbstractPeriodFrame
 abstract AbstractDatePeriodFrame <: AbstractPeriodFrame
 
 immutable TimePeriodFrame{T <: Dates.TimePeriod} <: AbstractTimePeriodFrame
-    time_period::T
+    period::T
     boundary::Boundary
     TimePeriodFrame(; boundary=Begin::Boundary) = new(1, boundary)
     TimePeriodFrame(n::Integer; boundary=Begin::Boundary) = new(n, boundary)
 end
 
 immutable DatePeriodFrame{T <: Dates.DatePeriod} <: AbstractDatePeriodFrame
-    time_period::T
+    period::T
     boundary::Boundary
     DatePeriodFrame(; boundary=Begin::Boundary) = new(1, boundary)
     DatePeriodFrame(n::Integer; boundary=Begin::Boundary) = new(n, boundary)
@@ -44,7 +44,7 @@ immutable NoTimeFrame <: TimeFrame
     NoTimeFrame(args...; kwargs...) = new()
 end
 
-Base.hash(tf::TimePeriodFrame, h::UInt) = hash(tf.time_period, hash(tf.boundary))
+Base.hash(tf::TimePeriodFrame, h::UInt) = hash(tf.period, hash(tf.boundary))
 Base.:(==)(tf1::TimePeriodFrame, tf2::TimePeriodFrame) = hash(tf1) == hash(tf2)
 
 
@@ -57,70 +57,70 @@ function period_step(::Type{DateTime})
 end
 
 immutable Millisecond <: AbstractTimePeriodFrame
-    time_period::Dates.TimePeriod
+    period::Dates.TimePeriod
     boundary::Boundary
     Millisecond() = new(Dates.Millisecond(1), Begin)
     Millisecond(n::Integer) = new(Dates.Millisecond(n), Begin)
 end
 
 immutable Second <: AbstractTimePeriodFrame
-    time_period::Dates.TimePeriod
+    period::Dates.TimePeriod
     boundary::Boundary
     Second() = new(Dates.Second(1), Begin)
     Second(n::Integer) = new(Dates.Second(n), Begin)
 end
 
 immutable Minute <: AbstractTimePeriodFrame
-    time_period::Dates.TimePeriod
+    period::Dates.TimePeriod
     boundary::Boundary
     Minute() = new(Dates.Minute(1), Begin)
     Minute(n::Integer) = new(Dates.Minute(n), Begin)
 end
 
 immutable Hour <: AbstractTimePeriodFrame
-    time_period::Dates.TimePeriod
+    period::Dates.TimePeriod
     boundary::Boundary
     Hour() = new(Dates.Hour(1), Begin)
     Hour(n::Integer) = new(Dates.Hour(n), Begin)
 end
 
 immutable Day <: AbstractDatePeriodFrame
-    time_period::Dates.DatePeriod
+    period::Dates.DatePeriod
     boundary::Boundary
     Day() = new(Dates.Day(1), Begin)
     Day(n::Integer) = new(Dates.Day(n), Begin)
 end
 
 immutable Week <: AbstractDatePeriodFrame
-    time_period::Dates.DatePeriod
+    period::Dates.DatePeriod
     boundary::Boundary
     Week() = new(Dates.Week(1), Begin)
     Week(n::Integer) = new(Dates.Week(n), Begin)
 end
 
 immutable MonthEnd <: AbstractDatePeriodFrame
-    time_period::Dates.DatePeriod
+    period::Dates.DatePeriod
     boundary::Boundary
     MonthEnd() = new(Dates.Month(1), End)
     MonthEnd(n::Integer) = new(Dates.Month(n), End)
 end
 
 immutable MonthBegin <: AbstractDatePeriodFrame
-    time_period::Dates.DatePeriod
+    period::Dates.DatePeriod
     boundary::Boundary
     MonthBegin() = new(Dates.Month(1), Begin)
     MonthBegin(n::Integer) = new(Dates.Month(n), Begin)
 end
 
 immutable YearEnd <: AbstractDatePeriodFrame
-    time_period::Dates.DatePeriod
+    period::Dates.DatePeriod
     boundary::Boundary
     YearEnd() = new(Dates.Year(1), End)
     YearEnd(n::Integer) = new(Dates.Year(n), End)
 end
 
 immutable YearBegin <: AbstractDatePeriodFrame
-    time_period::Dates.DatePeriod
+    period::Dates.DatePeriod
     boundary::Boundary
     YearBegin() = new(Dates.Year(1), Begin)
     YearBegin(n::Integer) = new(Dates.Year(n), Begin)
@@ -129,14 +129,14 @@ end
 TimeFrame() = Secondly(0)
 
 function dt_grouper(tf::AbstractPeriodFrame)
-    dt -> _d_f_boundary[tf.boundary](dt, tf.time_period)
+    dt -> _d_f_boundary[tf.boundary](dt, tf.period)
 end
 
 function dt_grouper(tf::AbstractPeriodFrame, t::Type)
     if tf.boundary == Begin
-        dt -> _d_f_boundary[tf.boundary](dt, tf.time_period)
+        dt -> _d_f_boundary[tf.boundary](dt, tf.period)
     elseif tf.boundary == End
-        dt -> _d_f_boundary[tf.boundary](dt, tf.time_period) - period_step(t)
+        dt -> _d_f_boundary[tf.boundary](dt, tf.period) - period_step(t)
     else
         error("Unsupported boundary $(tf.boundary)")
     end
@@ -171,10 +171,10 @@ end
 
 function shortcut(tf::TimeFrame)
     s_tf = _D_TIMEFRAME2STR[typeof(tf)]
-    if tf.time_period.value == 1
+    if tf.period.value == 1
         s_tf
     else
-        "$(tf.time_period.value)$(s_tf)"
+        "$(tf.period.value)$(s_tf)"
     end
 end
 
@@ -235,9 +235,9 @@ end
 function range(dt1::TimeType, tf::AbstractPeriodFrame, dt2::TimeType; apply_tf=true)
     td = period_step(typeof(dt2))
     if apply_tf
-        apply(tf, dt1):tf.time_period:apply(tf, dt2-td)
+        apply(tf, dt1):tf.period:apply(tf, dt2-td)
     else
-        dt1:tf.time_period:dt2-td
+        dt1:tf.period:dt2-td
     end
 end
 
@@ -246,11 +246,11 @@ function range(dt1::TimeType, td::Dates.Period, dt2::TimeType; apply_tf=true)
 end
 
 function range(dt1::TimeType, tf::AbstractPeriodFrame, len::Integer)
-    range(dt1, tf.time_period, len)
+    range(dt1, tf.period, len)
 end
 
 function range(tf::AbstractPeriodFrame, dt2::TimeType, len::Integer)
-    range(dt2 - len * tf.time_period, tf.time_period, len)
+    range(dt2 - len * tf.period, tf.period, len)
 end
 
 function range(td::Dates.Period, dt2::TimeType, len::Integer)

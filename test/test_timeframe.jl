@@ -4,16 +4,16 @@ using TimeFrames: shortcut
 using Base.Test
 
 tf = YearEnd()
-@test tf.time_period.value == 1
+@test tf.period.value == 1
 
 @test YearEnd() == YearEnd()
 @test YearEnd() != YearEnd(5)
 
 tf = Minute()
-@test tf.time_period.value == 1
+@test tf.period.value == 1
 
 tf = Minute(15)
-@test tf.time_period.value == 15
+@test tf.period.value == 15
 
 tf1 = Minute(15)
 tf2 = Minute(15)
@@ -30,20 +30,20 @@ tf = Minute(15)
 @test shortcut(tf) == "15T"
 
 tf = TimeFrame("15T")
-@test tf.time_period.value == 15
+@test tf.period.value == 15
 @test typeof(tf) == Minute
 
 tf = TimeFrame("T")
-@test tf.time_period.value == 1
+@test tf.period.value == 1
 @test typeof(tf) == Minute
 
 tf = TimeFrame("15Min")
-@test tf.time_period.value == 15
+@test tf.period.value == 15
 @test shortcut(tf) == "15T"
 @test typeof(tf) == Minute
 
 tf = TimeFrame("5H")
-@test tf.time_period.value == 5
+@test tf.period.value == 5
 @test typeof(tf) == Hour
 
 # Boundary
@@ -53,22 +53,22 @@ tf = TimeFrame("5H")
 
 tf = TimeFrame("3A")
 @test tf == YearEnd(3)
-@test tf.time_period == Dates.Year(3)
+@test tf.period == Dates.Year(3)
 @test tf.boundary == End
 
 tf = TimeFrame("3AS")
 @test tf == YearBegin(3)
-@test tf.time_period == Dates.Year(3)
+@test tf.period == Dates.Year(3)
 #@test tf.boundary == Begin  # ToFix
 
 tf = TimeFrame("3M")
 @test tf == MonthEnd(3)
-@test tf.time_period == Dates.Month(3)
+@test tf.period == Dates.Month(3)
 @test tf.boundary == End
 
 tf = TimeFrame("3MS")
 @test tf == MonthBegin(3)
-@test tf.time_period == Dates.Month(3)
+@test tf.period == Dates.Month(3)
 #@test tf.boundary == Begin  # ToFix
 
 # Grouper
