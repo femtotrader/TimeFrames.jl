@@ -33,3 +33,4 @@ julia> apply(TimeFrame("2H"), DateTime(2016, 9, 11, 20, 9))
 
 This library is used by
  - [TimeSeriesResampler.jl](https://github.com/femtotrader/TimeSeriesResampler.jl)
+ - [TimeSeriesIO.jl](https://github.com/femtotrader/TimeSeriesIO.jl)
