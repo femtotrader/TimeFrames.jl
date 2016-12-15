@@ -133,6 +133,9 @@ tf = TimeFrame("")
 @test typeof(tf) == NoTimeFrame
 @test NoTimeFrame() == NoTimeFrame(1,2,3)
 
+tf = TimeFrame()
+@test typeof(tf) == NoTimeFrame
+
 # range
 dt1 = DateTime(2010, 1, 1, 20)
 dt2 = DateTime(2010, 1, 14, 16)

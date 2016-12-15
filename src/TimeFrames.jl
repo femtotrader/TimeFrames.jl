@@ -43,6 +43,7 @@ end
 immutable NoTimeFrame <: TimeFrame
     NoTimeFrame(args...; kwargs...) = new()
 end
+TimeFrame() = NoTimeFrame()
 
 Base.hash(tf::TimePeriodFrame, h::UInt) = hash(tf.period, hash(tf.boundary))
 Base.:(==)(tf1::TimePeriodFrame, tf2::TimePeriodFrame) = hash(tf1) == hash(tf2)
@@ -125,8 +126,6 @@ immutable YearBegin <: AbstractDatePeriodFrame
     YearBegin() = new(Dates.Year(1), Begin)
     YearBegin(n::Integer) = new(Dates.Year(n), Begin)
 end
-
-TimeFrame() = Secondly(0)
 
 function dt_grouper(tf::AbstractPeriodFrame)
     dt -> _d_f_boundary[tf.boundary](dt, tf.period)
