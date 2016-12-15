@@ -170,4 +170,6 @@ end
 dt1 = DateTime(2010, 1, 1, 20)
 dt2 = DateTime(2010, 1, 14, 16)
 tf = NoTimeFrame()
-@test range(dt1, tf, dt2) == dt1
+rng = range(dt1, tf, dt2)
+@test length(rng) == 1
+@test rng[1] == dt1

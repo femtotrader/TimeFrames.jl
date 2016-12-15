@@ -256,7 +256,7 @@ function range(td::Dates.Period, dt2::TimeType, len::Integer)
     range(TimeFrame(td), dt2, len)
 end
 
-range(dt1::DateTime, tf::NoTimeFrame, dt2::DateTime) = dt1
+range(dt1::DateTime, tf::NoTimeFrame, dt2::DateTime) = [dt1]
 
 
 end # module
