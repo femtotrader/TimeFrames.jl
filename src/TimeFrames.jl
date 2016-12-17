@@ -8,7 +8,7 @@ export YearBegin, YearEnd
 export MonthBegin, MonthEnd
 export Millisecond, Second, Minute, Hour, Day, Week
 export NoTimeFrame
-export apply, range, shortcut
+export apply, range
 export Begin, End
 
 abstract TimeFrame
@@ -168,7 +168,7 @@ for (key, value) in _D_STR2TIMEFRAME_ADDITIONAL
     _D_STR2TIMEFRAME[key] = value
 end
 
-function shortcut(tf::TimeFrame)
+function String(tf::TimeFrame)
     s_tf = _D_TIMEFRAME2STR[typeof(tf)]
     if tf.period.value == 1
         s_tf

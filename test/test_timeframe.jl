@@ -1,5 +1,4 @@
 using TimeFrames
-using TimeFrames: shortcut
 
 using Base.Test
 
@@ -24,10 +23,10 @@ tf2 = Minute(30)
 @test tf1 != tf2
 
 tf = Minute()
-@test shortcut(tf) == "T"
+@test String(tf) == "T"
 
 tf = Minute(15)
-@test shortcut(tf) == "15T"
+@test String(tf) == "15T"
 
 tf = TimeFrame("15T")
 @test tf.period.value == 15
@@ -39,7 +38,7 @@ tf = TimeFrame("T")
 
 tf = TimeFrame("15Min")
 @test tf.period.value == 15
-@test shortcut(tf) == "15T"
+@test String(tf) == "15T"
 @test typeof(tf) == Minute
 
 tf = TimeFrame("5H")
