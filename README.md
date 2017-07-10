@@ -1,6 +1,6 @@
 # TimeFrames
 
-[![Package Evaluator](http://pkg.julialang.org/badges/TimeFrames_0.5.svg)](http://pkg.julialang.org/?pkg=TimeFrames)
+[![Package Evaluator](http://pkg.julialang.org/badges/TimeFrames_0.6.svg)](http://pkg.julialang.org/?pkg=TimeFrames)
 
 [![Build Status](https://travis-ci.org/femtotrader/TimeFrames.jl.svg?branch=master)](https://travis-ci.org/femtotrader/TimeFrames.jl)
 
