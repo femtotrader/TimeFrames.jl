@@ -11,7 +11,7 @@ export NoTimeFrame
 export apply, range
 export Begin, End
 
-abstract TimeFrame
+abstract type TimeFrame end
 
 @enum(Boundary,
     UndefBoundary = 0,  # Undefined boundary
@@ -21,124 +21,108 @@ abstract TimeFrame
 
 #T should be Dates.TimePeriod
 
-abstract AbstractPeriodFrame <: TimeFrame
-abstract AbstractTimePeriodFrame <: AbstractPeriodFrame
-abstract AbstractDatePeriodFrame <: AbstractPeriodFrame
+abstract type AbstractPeriodFrame <: TimeFrame end
+abstract type AbstractTimePeriodFrame <: AbstractPeriodFrame end
+abstract type AbstractDatePeriodFrame <: AbstractPeriodFrame end
 
-immutable TimePeriodFrame{T <: Dates.TimePeriod} <: AbstractTimePeriodFrame
+struct TimePeriodFrame{T <: Dates.TimePeriod} <: AbstractTimePeriodFrame
     period::T
     boundary::Boundary
-    TimePeriodFrame(; boundary=Begin::Boundary) = new(1, boundary)
-    TimePeriodFrame(n::Integer; boundary=Begin::Boundary) = new(n, boundary)
+    TimePeriodFrame{T}(; boundary=Begin::Boundary) where T<:Dates.TimePeriod = new(T(1), boundary)
+    TimePeriodFrame{T}(n::Integer; boundary=Begin::Boundary) where T<:Dates.TimePeriod = new(T(n), boundary)
 end
 
-immutable DatePeriodFrame{T <: Dates.DatePeriod} <: AbstractDatePeriodFrame
+struct DatePeriodFrame{T <: Dates.DatePeriod} <: AbstractDatePeriodFrame
     period::T
     boundary::Boundary
-    DatePeriodFrame(; boundary=Begin::Boundary) = new(1, boundary)
-    DatePeriodFrame(n::Integer; boundary=Begin::Boundary) = new(n, boundary)
+    DatePeriodFrame{T}(; boundary=Begin::Boundary) where T<:Dates.DatePeriod = new(T(1), boundary)
+    DatePeriodFrame{T}(n::Integer; boundary=Begin::Boundary) where T<:Dates.DatePeriod = new(T(n), boundary)
 end
 
-
-immutable NoTimeFrame <: TimeFrame
+struct NoTimeFrame <: TimeFrame
     NoTimeFrame(args...; kwargs...) = new()
 end
 TimeFrame() = NoTimeFrame()
 
-Base.hash(tf::TimePeriodFrame, h::UInt) = hash(tf.period, hash(tf.boundary))
-Base.:(==)(tf1::TimePeriodFrame, tf2::TimePeriodFrame) = hash(tf1) == hash(tf2)
+# Base.hash(tf::TimePeriodFrame, h::UInt) = hash(tf.period, hash(tf.boundary))
+# Base.:(==)(tf1::TimePeriodFrame, tf2::TimePeriodFrame) = hash(tf1) == hash(tf2)
 
-
-function period_step(::Type{Date})
+function _period_step(::Type{Date})
     Dates.Day(1)
 end
 
-function period_step(::Type{DateTime})
+function _period_step(::Type{DateTime})
     Dates.Millisecond(1)
 end
 
-immutable Millisecond <: AbstractTimePeriodFrame
+struct Millisecond <: AbstractTimePeriodFrame
     period::Dates.TimePeriod
     boundary::Boundary
     Millisecond() = new(Dates.Millisecond(1), Begin)
     Millisecond(n::Integer) = new(Dates.Millisecond(n), Begin)
 end
 
-immutable Second <: AbstractTimePeriodFrame
+struct Second <: AbstractTimePeriodFrame
     period::Dates.TimePeriod
     boundary::Boundary
     Second() = new(Dates.Second(1), Begin)
     Second(n::Integer) = new(Dates.Second(n), Begin)
 end
 
-immutable Minute <: AbstractTimePeriodFrame
+struct Minute <: AbstractTimePeriodFrame
     period::Dates.TimePeriod
     boundary::Boundary
     Minute() = new(Dates.Minute(1), Begin)
     Minute(n::Integer) = new(Dates.Minute(n), Begin)
 end
 
-immutable Hour <: AbstractTimePeriodFrame
+struct Hour <: AbstractTimePeriodFrame
     period::Dates.TimePeriod
     boundary::Boundary
     Hour() = new(Dates.Hour(1), Begin)
     Hour(n::Integer) = new(Dates.Hour(n), Begin)
 end
 
-immutable Day <: AbstractDatePeriodFrame
+struct Day <: AbstractDatePeriodFrame
     period::Dates.DatePeriod
     boundary::Boundary
     Day() = new(Dates.Day(1), Begin)
     Day(n::Integer) = new(Dates.Day(n), Begin)
 end
 
-immutable Week <: AbstractDatePeriodFrame
+struct Week <: AbstractDatePeriodFrame
     period::Dates.DatePeriod
     boundary::Boundary
     Week() = new(Dates.Week(1), Begin)
     Week(n::Integer) = new(Dates.Week(n), Begin)
 end
 
-immutable MonthEnd <: AbstractDatePeriodFrame
+struct MonthEnd <: AbstractDatePeriodFrame
     period::Dates.DatePeriod
     boundary::Boundary
     MonthEnd() = new(Dates.Month(1), End)
     MonthEnd(n::Integer) = new(Dates.Month(n), End)
 end
 
-immutable MonthBegin <: AbstractDatePeriodFrame
+struct MonthBegin <: AbstractDatePeriodFrame
     period::Dates.DatePeriod
     boundary::Boundary
     MonthBegin() = new(Dates.Month(1), Begin)
     MonthBegin(n::Integer) = new(Dates.Month(n), Begin)
 end
 
-immutable YearEnd <: AbstractDatePeriodFrame
+struct YearEnd <: AbstractDatePeriodFrame
     period::Dates.DatePeriod
     boundary::Boundary
     YearEnd() = new(Dates.Year(1), End)
     YearEnd(n::Integer) = new(Dates.Year(n), End)
 end
 
-immutable YearBegin <: AbstractDatePeriodFrame
+struct YearBegin <: AbstractDatePeriodFrame
     period::Dates.DatePeriod
     boundary::Boundary
     YearBegin() = new(Dates.Year(1), Begin)
     YearBegin(n::Integer) = new(Dates.Year(n), Begin)
-end
-
-function dt_grouper(tf::AbstractPeriodFrame)
-    dt -> _d_f_boundary[tf.boundary](dt, tf.period)
-end
-
-function dt_grouper(tf::AbstractPeriodFrame, t::Type)
-    if tf.boundary == Begin
-        dt -> _d_f_boundary[tf.boundary](dt, tf.period)
-    elseif tf.boundary == End
-        dt -> _d_f_boundary[tf.boundary](dt, tf.period) - period_step(t)
-    else
-        error("Unsupported boundary $(tf.boundary)")
-    end
 end
 
 _D_STR2TIMEFRAME = Dict(
@@ -168,6 +152,7 @@ for (key, value) in _D_STR2TIMEFRAME_ADDITIONAL
     _D_STR2TIMEFRAME[key] = value
 end
 
+# To string
 function String(tf::TimeFrame)
     s_tf = _D_TIMEFRAME2STR[typeof(tf)]
     if tf.period.value == 1
@@ -177,6 +162,7 @@ function String(tf::TimeFrame)
     end
 end
 
+# Parse
 function TimeFrame(s::String; boundary=UndefBoundary)
     freq_pattern = join(keys(_D_STR2TIMEFRAME), "|")
     #pattern = r"^([\d]*)([Y|M|W|D|H|T])$"
@@ -197,6 +183,21 @@ function TimeFrame(s::String; boundary=UndefBoundary)
             tf.boundary = boundary
         end
         tf
+    end
+end
+
+# grouper
+function dt_grouper(tf::AbstractPeriodFrame)
+    dt -> _d_f_boundary[tf.boundary](dt, tf.period)
+end
+
+function dt_grouper(tf::AbstractPeriodFrame, t::Type)
+    if tf.boundary == Begin
+        dt -> _d_f_boundary[tf.boundary](dt, tf.period)
+    elseif tf.boundary == End
+        dt -> _d_f_boundary[tf.boundary](dt, tf.period) - _period_step(t)
+    else
+        error("Unsupported boundary $(tf.boundary)")
     end
 end
 
@@ -231,8 +232,9 @@ function apply(tf::TimeFrame, dt)
     dt_grouper(tf, typeof(dt))(dt)
 end
 
+# range
 function range(dt1::TimeType, tf::AbstractPeriodFrame, dt2::TimeType; apply_tf=true)
-    td = period_step(typeof(dt2))
+    td = _period_step(typeof(dt2))
     if apply_tf
         apply(tf, dt1):tf.period:apply(tf, dt2-td)
     else
