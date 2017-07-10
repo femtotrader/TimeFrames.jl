@@ -198,33 +198,28 @@ end
         @testset "range" begin
             dt1 = DateTime(2010, 1, 1, 20)
             dt2 = DateTime(2010, 1, 14, 16)
-            for tf in [Dates.Day(1), Day(1)]  # Should works both with Period and TimeFrame
-                rng = range(dt1, tf, dt2)
-                @test rng[1] == DateTime(2010, 1, 1)
-                @test rng[end] == DateTime(2010, 1, 14)
+            tf = Dates.Day(1)
+            rng = range(dt1, TimeFrame(tf), dt2)
+            @test rng[1] == DateTime(2010, 1, 1)
+            @test rng[end] == DateTime(2010, 1, 14)
 
-                rng = range(dt1, tf, dt2, apply_tf=false)
-                @test rng[1] == DateTime(2010, 1, 1, 20)
-                @test rng[end] == DateTime(2010, 1, 13, 20)
-            end
+            rng = range(dt1, TimeFrame(tf), dt2, apply_tf=false)
+            @test rng[1] == DateTime(2010, 1, 1, 20)
+            @test rng[end] == DateTime(2010, 1, 13, 20)
 
+            tf = Dates.Day(1)
+            N = 5
+            rng = range(dt1, TimeFrame(tf), N)
+            @test length(rng) == N
+            @test rng[1] == DateTime(2010, 1, 1, 20)
+            @test rng[end] == DateTime(2010, 1, 5, 20)
 
-            for tf in [Dates.Day(1), Day(1)]  # Should works both with Period and TimeFrame
-                N = 5
-                rng = range(dt1, tf, N)
-                @test length(rng) == N
-                @test rng[1] == DateTime(2010, 1, 1, 20)
-                @test rng[end] == DateTime(2010, 1, 5, 20)
-            end
-
-
-            for tf in [Dates.Day(1), Day(1)]  # Should works both with Period and TimeFrame
-                N = 5
-                rng = range(tf, dt2, N)
-                @test length(rng) == N
-                @test rng[end] == DateTime(2010, 1, 13, 16)
-                @test rng[1] == DateTime(2010, 1, 9, 16)
-            end
+            tf = Dates.Day(1)
+            N = 5
+            rng = range(TimeFrame(tf), dt2, N)
+            @test length(rng) == N
+            @test rng[end] == DateTime(2010, 1, 13, 16)
+            @test rng[1] == DateTime(2010, 1, 9, 16)
 
             dt1 = DateTime(2010, 1, 1, 20)
             dt2 = DateTime(2010, 1, 14, 16)

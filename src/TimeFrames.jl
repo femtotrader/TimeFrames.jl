@@ -242,20 +242,12 @@ function range(dt1::TimeType, tf::AbstractPeriodFrame, dt2::TimeType; apply_tf=t
     end
 end
 
-function range(dt1::TimeType, td::Dates.Period, dt2::TimeType; apply_tf=true)
-    range(dt1, TimeFrame(td), dt2; apply_tf=apply_tf)
-end
-
 function range(dt1::TimeType, tf::AbstractPeriodFrame, len::Integer)
     range(dt1, tf.period, len)
 end
 
 function range(tf::AbstractPeriodFrame, dt2::TimeType, len::Integer)
     range(dt2 - len * tf.period, tf.period, len)
-end
-
-function range(td::Dates.Period, dt2::TimeType, len::Integer)
-    range(TimeFrame(td), dt2, len)
 end
 
 range(dt1::DateTime, tf::NoTimeFrame, dt2::DateTime) = [dt1]
