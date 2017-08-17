@@ -201,7 +201,7 @@ function dt_grouper(tf::AbstractPeriodFrame, t::Type)
     end
 end
 
-type CustomTimeFrame <: TimeFrame
+mutable struct CustomTimeFrame <: TimeFrame
     f_group::Function
 end
 
