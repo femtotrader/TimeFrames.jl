@@ -1,5 +1,5 @@
 using TimeFrames
-using TimeFrames: TimePeriodFrame, DatePeriodFrame, _period_step
+using TimeFrames: TimePeriodFrame, DatePeriodFrame, _period_step, CustomTimeFrame
 
 
 using Base.Test
@@ -144,6 +144,7 @@ end
 
             tf = TimeFrame(dt -> floor(dt, Dates.Minute(15)))  # custom TimeFrame with lambda function as DateTime grouper
             @test apply(tf, dt) == DateTime(2016, 7, 20, 13, 15, 0, 0)
+            @test typeof(tf) == CustomTimeFrame
 
             tf = TimeFrame(Dates.Minute(15))  # TimePeriodFrame using TimePeriod
             @test apply(tf, dt) == DateTime(2016, 7, 20, 13, 15, 0, 0)
