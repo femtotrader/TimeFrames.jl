@@ -40,11 +40,11 @@ using Base.Test
     @testset "NoTimeFrame" begin
         tf = TimeFrame()
         @test typeof(tf) == NoTimeFrame
-        
+
         tf2 = TimeFrame()
         @test tf == tf2
     end
-    
+
     @testset "_period_step" begin
         @test _period_step(DateTime) == Dates.Millisecond(1)
         @test _period_step(Date) == Dates.Day(1)
@@ -83,8 +83,8 @@ end
         tf = Minute(15)
         @test String(tf) == "15T"
     end
-    
-    
+
+
     @testset "parse" begin
 
         @testset "simple parse" begin
@@ -105,13 +105,13 @@ end
             @test tf.period.value == 5
             @test typeof(tf) == Hour
         end
-        
+
         @testset "NoTimeFrame parse" begin
             tf = TimeFrame("")
             @test typeof(tf) == NoTimeFrame
             @test NoTimeFrame() == NoTimeFrame(1,2,3)
         end
-        
+
         @testset "boundary" begin
             tf = TimeFrame("3A")
             @test tf == YearEnd(3)
@@ -195,7 +195,7 @@ end
             tf = Minute(15)
             @test apply(tf, dt) == DateTime(2016, 7, 20, 13, 15, 0, 0)
         end
-        
+
         @testset "range" begin
             dt1 = DateTime(2010, 1, 1, 20)
             dt2 = DateTime(2010, 1, 14, 16)
@@ -227,9 +227,15 @@ end
             tf = NoTimeFrame()
             rng = range(dt1, tf, dt2)
             @test length(rng) == 1
-            @test rng[1] == dt1        
+            @test rng[1] == dt1
         end
 
-    
+
+        @testset "@tf" begin
+            @test tf"1T" == TimeFrame("1T")
+            @test tf"1M" == TimeFrame("M")
+        end  # @testset "@tf
+
+
     end
 end
