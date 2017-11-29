@@ -10,6 +10,7 @@ export Millisecond, Second, Minute, Hour, Day, Week
 export NoTimeFrame
 export apply, range
 export Begin, End
+export @tf_str
 
 abstract type TimeFrame end
 
@@ -252,5 +253,8 @@ end
 
 range(dt1::DateTime, tf::NoTimeFrame, dt2::DateTime) = [dt1]
 
+macro tf_str(tf)
+  :(TimeFrame($tf))
+end
 
 end # module
