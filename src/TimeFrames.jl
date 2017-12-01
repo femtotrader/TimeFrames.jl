@@ -1,6 +1,7 @@
 module TimeFrames
 
-import Base: range
+import Base: range, +
+
 using Base.Dates: TimeType
 
 export TimeFrame, Boundary
@@ -256,5 +257,24 @@ range(dt1::DateTime, tf::NoTimeFrame, dt2::DateTime) = [dt1]
 macro tf_str(tf)
   :(TimeFrame($tf))
 end
+
+promote_timetype(::Type{DateTime}, ::Type) = DateTime
+
+promote_timetype(::Type{Date}, ::Type)              = Date
+promote_timetype(::Type{Date}, ::Type{Hour})        = DateTime
+promote_timetype(::Type{Date}, ::Type{Minute})      = DateTime
+promote_timetype(::Type{Date}, ::Type{Second})      = DateTime
+promote_timetype(::Type{Date}, ::Type{Millisecond}) = DateTime
+
+promote_timetype(::Type{Dates.Time}, ::Type)             = Dates.Time
+promote_timetype(::Type{Dates.Time}, ::Type{YearBegin})  = throw(InexactError())
+promote_timetype(::Type{Dates.Time}, ::Type{YearEnd})    = throw(InexactError())
+promote_timetype(::Type{Dates.Time}, ::Type{MonthBegin}) = throw(InexactError())
+promote_timetype(::Type{Dates.Time}, ::Type{MonthEnd})   = throw(InexactError())
+promote_timetype(::Type{Dates.Time}, ::Type{Week})       = throw(InexactError())
+promote_timetype(::Type{Dates.Time}, ::Type{Day})        = throw(InexactError())
+
++(t::TimeType, tf::TimeFrame) =
+  convert(promote_timetype(typeof(t), typeof(tf)), t) + tf.period
 
 end # module
