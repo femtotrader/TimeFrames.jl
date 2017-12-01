@@ -243,86 +243,114 @@ end
       let tf = tf"1A"
         @test isdefined(tf, :period)
         @test d + tf == Date(2018, 12, 1)
+        @test tf + d == Date(2018, 12, 1)
         @inferred d + tf
+        @inferred tf + d
       end
 
       let tf = tf"1AS"
         @test isdefined(tf, :period)
         @test d + tf == Date(2018, 12, 1)
+        @test tf + d == Date(2018, 12, 1)
         @inferred d + tf
+        @inferred tf + d
       end
 
       let tf = tf"1M"
         @test isdefined(tf, :period)
         @test d + tf == Date(2018, 1, 1)
+        @test tf + d == Date(2018, 1, 1)
         @inferred d + tf
+        @inferred tf + d
       end
 
       let tf = tf"1MS"
         @test isdefined(tf, :period)
         @test d + tf == Date(2018, 1, 1)
+        @test tf + d == Date(2018, 1, 1)
         @inferred d + tf
+        @inferred tf + d
       end
 
       let tf = tf"1W"
         @test isdefined(tf, :period)
         @test d + tf == Date(2017, 12, 8)
+        @test tf + d == Date(2017, 12, 8)
         @inferred d + tf
+        @inferred tf + d
       end
 
       let tf = tf"1D"
         @test isdefined(tf, :period)
         @test d + tf == Date(2017, 12, 2)
+        @test tf + d == Date(2017, 12, 2)
         @inferred d + tf
+        @inferred tf + d
       end
 
       let tf = tf"1H"
         @test isdefined(tf, :period)
         @test d + tf == DateTime(2017, 12, 1, 1, 0, 0, 0)
+        @test tf + d == DateTime(2017, 12, 1, 1, 0, 0, 0)
         @inferred d + tf
+        @inferred tf + d
       end
 
       let tf = tf"1T"
         @test isdefined(tf, :period)
         @test d + tf == DateTime(2017, 12, 1, 0, 1, 0, 0)
+        @test tf + d == DateTime(2017, 12, 1, 0, 1, 0, 0)
         @inferred d + tf
+        @inferred tf + d
       end
 
       let tf = tf"1S"
         @test isdefined(tf, :period)
         @test d + tf == DateTime(2017, 12, 1, 0, 0, 1, 0)
+        @test tf + d == DateTime(2017, 12, 1, 0, 0, 1, 0)
         @inferred d + tf
+        @inferred tf + d
       end
 
       let tf = tf"1L"
         @test isdefined(tf, :period)
         @test d + tf == DateTime(2017, 12, 1, 0, 0, 0, 1)
+        @test tf + d == DateTime(2017, 12, 1, 0, 0, 0, 1)
         @inferred d + tf
+        @inferred tf + d
       end
 
       d = Dates.Time(0, 1, 2, 3)
       let tf = tf"1H"
         @test isdefined(tf, :period)
         @test d + tf == Dates.Time(1, 1, 2, 3)
+        @test tf + d == Dates.Time(1, 1, 2, 3)
         @inferred d + tf
+        @inferred tf + d
       end
 
       let tf = tf"1T"
         @test isdefined(tf, :period)
         @test d + tf == Dates.Time(0, 2, 2, 3)
+        @test tf + d == Dates.Time(0, 2, 2, 3)
         @inferred d + tf
+        @inferred tf + d
       end
 
       let tf = tf"1S"
         @test isdefined(tf, :period)
         @test d + tf == Dates.Time(0, 1, 3, 3)
+        @test tf + d == Dates.Time(0, 1, 3, 3)
         @inferred d + tf
+        @inferred tf + d
       end
 
       let tf = tf"1L"
         @test isdefined(tf, :period)
         @test d + tf == Dates.Time(0, 1, 2, 4)
+        @test tf + d == Dates.Time(0, 1, 2, 4)
         @inferred d + tf
+        @inferred tf + d
       end
 
       d = Dates.Time(0, 1, 2, 3)
@@ -332,5 +360,109 @@ end
       @test_throws InexactError d + tf"1MS"
       @test_throws InexactError d + tf"1W"
       @test_throws InexactError d + tf"1D"
+
+      @test_throws InexactError tf"1A"  + d
+      @test_throws InexactError tf"1AS" + d
+      @test_throws InexactError tf"1M"  + d
+      @test_throws InexactError tf"1MS" + d
+      @test_throws InexactError tf"1W"  + d
+      @test_throws InexactError tf"1D"  + d
     end  # @testset "+"
+
+
+    @testset "-" begin
+      d = Date(2017, 12, 1)
+      let tf = tf"1A"
+        @test isdefined(tf, :period)
+        @test d - tf == Date(2016, 12, 1)
+        @inferred d - tf
+      end
+
+      let tf = tf"1AS"
+        @test isdefined(tf, :period)
+        @test d - tf == Date(2016, 12, 1)
+        @inferred d - tf
+      end
+
+      let tf = tf"1M"
+        @test isdefined(tf, :period)
+        @test d - tf == Date(2017, 11, 1)
+        @inferred d - tf
+      end
+
+      let tf = tf"1MS"
+        @test isdefined(tf, :period)
+        @test d - tf == Date(2017, 11, 1)
+        @inferred d - tf
+      end
+
+      let tf = tf"1W"
+        @test isdefined(tf, :period)
+        @test d - tf == Date(2017, 11, 24)
+        @inferred d - tf
+      end
+
+      let tf = tf"1D"
+        @test isdefined(tf, :period)
+        @test d - tf == Date(2017, 11, 30)
+        @inferred d - tf
+      end
+
+      let tf = tf"1H"
+        @test isdefined(tf, :period)
+        @test d - tf == DateTime(2017, 11, 30, 23, 0, 0, 0)
+        @inferred d - tf
+      end
+
+      let tf = tf"1T"
+        @test isdefined(tf, :period)
+        @test d - tf == DateTime(2017, 11, 30, 23, 59, 0, 0)
+        @inferred d - tf
+      end
+
+      let tf = tf"1S"
+        @test isdefined(tf, :period)
+        @test d - tf == DateTime(2017, 11, 30, 23, 59, 59, 0)
+        @inferred d - tf
+      end
+
+      let tf = tf"1L"
+        @test isdefined(tf, :period)
+        @test d - tf == DateTime(2017, 11, 30, 23, 59, 59, 999)
+        @inferred d - tf
+      end
+
+      d = Dates.Time(0, 1, 2, 3)
+      let tf = tf"1H"
+        @test isdefined(tf, :period)
+        @test d - tf == Dates.Time(23, 1, 2, 3)
+        @inferred d - tf
+      end
+
+      let tf = tf"1T"
+        @test isdefined(tf, :period)
+        @test d - tf == Dates.Time(0, 0, 2, 3)
+        @inferred d - tf
+      end
+
+      let tf = tf"1S"
+        @test isdefined(tf, :period)
+        @test d - tf == Dates.Time(0, 1, 1, 3)
+        @inferred d - tf
+      end
+
+      let tf = tf"1L"
+        @test isdefined(tf, :period)
+        @test d - tf == Dates.Time(0, 1, 2, 2)
+        @inferred d - tf
+      end
+
+      d = Dates.Time(0, 1, 2, 3)
+      @test_throws InexactError d - tf"1A"
+      @test_throws InexactError d - tf"1AS"
+      @test_throws InexactError d - tf"1M"
+      @test_throws InexactError d - tf"1MS"
+      @test_throws InexactError d - tf"1W"
+      @test_throws InexactError d - tf"1D"
+    end  # @testset "-"
 end  # @testset "high level"
