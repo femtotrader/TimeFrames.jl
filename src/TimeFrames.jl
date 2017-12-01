@@ -126,7 +126,7 @@ struct YearBegin <: AbstractDatePeriodFrame
     YearBegin(n::Integer) = new(Dates.Year(n), Begin)
 end
 
-_D_STR2TIMEFRAME = Dict(
+const _D_STR2TIMEFRAME = Dict(
     "A"=>YearEnd,
     "AS"=>YearBegin,
     "M"=>MonthEnd,
@@ -141,12 +141,12 @@ _D_STR2TIMEFRAME = Dict(
     ""=>NoTimeFrame
 )
 # Reverse key/value
-_D_TIMEFRAME2STR = Dict{DataType,String}()
+const _D_TIMEFRAME2STR = Dict{DataType,String}()
 for (key, typ) in _D_STR2TIMEFRAME
     _D_TIMEFRAME2STR[typ] = key
 end
 # Additional shortcuts
-_D_STR2TIMEFRAME_ADDITIONAL = Dict(
+const _D_STR2TIMEFRAME_ADDITIONAL = Dict(
     "MIN"=>Minute,
 )
 for (key, value) in _D_STR2TIMEFRAME_ADDITIONAL
