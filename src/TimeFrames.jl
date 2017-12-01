@@ -1,6 +1,6 @@
 module TimeFrames
 
-import Base: range, +
+import Base: range, +, -
 
 using Base.Dates: TimeType
 
@@ -276,5 +276,10 @@ promote_timetype(::Type{Dates.Time}, ::Type{Day})        = throw(InexactError())
 
 +(t::TimeType, tf::TimeFrame) =
   convert(promote_timetype(typeof(t), typeof(tf)), t) + tf.period
+
++(tf::TimeFrame, t::TimeType) = t + tf
+
+-(t::TimeType, tf::TimeFrame) =
+  convert(promote_timetype(typeof(t), typeof(tf)), t) - tf.period
 
 end # module
