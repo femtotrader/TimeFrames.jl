@@ -240,115 +240,115 @@ end
 
     @testset "+" begin
       d = Date(2017, 12, 1)
-      let tf = tf"1A"
+      let tf = tf"1A", ans = Date(2018, 12, 1)
         @test isdefined(tf, :period)
-        @test d + tf == Date(2018, 12, 1)
-        @test tf + d == Date(2018, 12, 1)
+        @test d + tf == ans
+        @test tf + d == ans
         @inferred d + tf
         @inferred tf + d
       end
 
-      let tf = tf"1AS"
+      let tf = tf"1AS", ans = Date(2018, 12, 1)
         @test isdefined(tf, :period)
-        @test d + tf == Date(2018, 12, 1)
-        @test tf + d == Date(2018, 12, 1)
+        @test d + tf == ans
+        @test tf + d == ans
         @inferred d + tf
         @inferred tf + d
       end
 
-      let tf = tf"1M"
+      let tf = tf"1M", ans = Date(2018, 1, 1)
         @test isdefined(tf, :period)
-        @test d + tf == Date(2018, 1, 1)
-        @test tf + d == Date(2018, 1, 1)
+        @test d + tf == ans
+        @test tf + d == ans
         @inferred d + tf
         @inferred tf + d
       end
 
-      let tf = tf"1MS"
+      let tf = tf"1MS", ans = Date(2018, 1, 1)
         @test isdefined(tf, :period)
-        @test d + tf == Date(2018, 1, 1)
-        @test tf + d == Date(2018, 1, 1)
+        @test d + tf == ans
+        @test tf + d == ans
         @inferred d + tf
         @inferred tf + d
       end
 
-      let tf = tf"1W"
+      let tf = tf"1W", ans = Date(2017, 12, 8)
         @test isdefined(tf, :period)
-        @test d + tf == Date(2017, 12, 8)
-        @test tf + d == Date(2017, 12, 8)
+        @test d + tf == ans
+        @test tf + d == ans
         @inferred d + tf
         @inferred tf + d
       end
 
-      let tf = tf"1D"
+      let tf = tf"1D", ans = Date(2017, 12, 2)
         @test isdefined(tf, :period)
-        @test d + tf == Date(2017, 12, 2)
-        @test tf + d == Date(2017, 12, 2)
+        @test d + tf == ans
+        @test tf + d == ans
         @inferred d + tf
         @inferred tf + d
       end
 
-      let tf = tf"1H"
+      let tf = tf"1H", ans = DateTime(2017, 12, 1, 1, 0, 0, 0)
         @test isdefined(tf, :period)
-        @test d + tf == DateTime(2017, 12, 1, 1, 0, 0, 0)
-        @test tf + d == DateTime(2017, 12, 1, 1, 0, 0, 0)
+        @test d + tf == ans
+        @test tf + d == ans
         @inferred d + tf
         @inferred tf + d
       end
 
-      let tf = tf"1T"
+      let tf = tf"1T", ans = DateTime(2017, 12, 1, 0, 1, 0, 0)
         @test isdefined(tf, :period)
-        @test d + tf == DateTime(2017, 12, 1, 0, 1, 0, 0)
-        @test tf + d == DateTime(2017, 12, 1, 0, 1, 0, 0)
+        @test d + tf == ans
+        @test tf + d == ans
         @inferred d + tf
         @inferred tf + d
       end
 
-      let tf = tf"1S"
+      let tf = tf"1S", ans = DateTime(2017, 12, 1, 0, 0, 1, 0)
         @test isdefined(tf, :period)
-        @test d + tf == DateTime(2017, 12, 1, 0, 0, 1, 0)
-        @test tf + d == DateTime(2017, 12, 1, 0, 0, 1, 0)
+        @test d + tf == ans
+        @test tf + d == ans
         @inferred d + tf
         @inferred tf + d
       end
 
-      let tf = tf"1L"
+      let tf = tf"1L", ans = DateTime(2017, 12, 1, 0, 0, 0, 1)
         @test isdefined(tf, :period)
-        @test d + tf == DateTime(2017, 12, 1, 0, 0, 0, 1)
-        @test tf + d == DateTime(2017, 12, 1, 0, 0, 0, 1)
+        @test d + tf == ans
+        @test tf + d == ans
         @inferred d + tf
         @inferred tf + d
       end
 
       d = Dates.Time(0, 1, 2, 3)
-      let tf = tf"1H"
+      let tf = tf"1H", ans = Dates.Time(1, 1, 2, 3)
         @test isdefined(tf, :period)
-        @test d + tf == Dates.Time(1, 1, 2, 3)
-        @test tf + d == Dates.Time(1, 1, 2, 3)
+        @test d + tf == ans
+        @test tf + d == ans
         @inferred d + tf
         @inferred tf + d
       end
 
-      let tf = tf"1T"
+      let tf = tf"1T", ans = Dates.Time(0, 2, 2, 3)
         @test isdefined(tf, :period)
-        @test d + tf == Dates.Time(0, 2, 2, 3)
-        @test tf + d == Dates.Time(0, 2, 2, 3)
+        @test d + tf == ans
+        @test tf + d == ans
         @inferred d + tf
         @inferred tf + d
       end
 
-      let tf = tf"1S"
+      let tf = tf"1S", ans = Dates.Time(0, 1, 3, 3)
         @test isdefined(tf, :period)
-        @test d + tf == Dates.Time(0, 1, 3, 3)
-        @test tf + d == Dates.Time(0, 1, 3, 3)
+        @test d + tf == ans
+        @test tf + d == ans
         @inferred d + tf
         @inferred tf + d
       end
 
-      let tf = tf"1L"
+      let tf = tf"1L", ans = Dates.Time(0, 1, 2, 4)
         @test isdefined(tf, :period)
-        @test d + tf == Dates.Time(0, 1, 2, 4)
-        @test tf + d == Dates.Time(0, 1, 2, 4)
+        @test d + tf == ans
+        @test tf + d == ans
         @inferred d + tf
         @inferred tf + d
       end
