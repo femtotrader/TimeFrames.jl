@@ -225,7 +225,7 @@ function dt_grouper(tf::CustomTimeFrame, ::Type)
     tf.f_group
 end
 
-_d_f_boundary = Dict(
+const _d_f_boundary = Dict(
     Begin::Boundary => floor,
     End::Boundary => ceil
 )
