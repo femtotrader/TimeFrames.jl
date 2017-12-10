@@ -134,6 +134,22 @@ end
             #@test tf.boundary == Begin  # ToFix
         end
 
+        @testset "*" begin
+            @testset "TimePeriodFrame * n / n * TimePeriodFrame" begin
+                tf = TimeFrame("2H")
+                @test tf * 3 == TimeFrame("6H")
+
+                tf = TimeFrame("2H")
+                @test 3 * tf == TimeFrame("6H")
+            end
+            @testset "DatePeriodFrame * n / n * DatePeriodFrame" begin
+                tf = TimeFrame("2M")
+                @test tf * 3 == TimeFrame("6M")
+
+                tf = TimeFrame("2M")
+                @test 3 * tf == TimeFrame("6M")
+            end
+        end
 
         @testset "grouper/apply" begin
             @test apply(MonthEnd(), Date(2010, 2, 20)) == Date(2010, 2, 28)
