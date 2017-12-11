@@ -53,9 +53,18 @@ function _period_step(::Type{Date})
     Dates.Day(1)
 end
 
+const period_step = Dates.Millisecond(1)
+
 function _period_step(::Type{DateTime})
-    Dates.Millisecond(1)
+    period_step
 end
+
+#struct Microsecond <: AbstractTimePeriodFrame
+#    period::Dates.TimePeriod
+#    boundary::Boundary
+#end
+#Microsecond() = Microsecond(Dates.Microsecond(1), Begin)
+#Microsecond(n::Integer) = Microsecond(Dates.Microsecond(n), Begin)
 
 struct Millisecond <: AbstractTimePeriodFrame
     period::Dates.TimePeriod
@@ -232,6 +241,15 @@ const _d_f_boundary = Dict(
 
 function apply(tf::TimeFrame, dt)
     dt_grouper(tf, typeof(dt))(dt)
+end
+
+function tonext(tf::TimeFrame, dt::Dates.TimeType)
+    dt2 = apply(tf, dt)
+    if dt2 < dt
+        dt2 + tf
+    else
+        dt2
+    end
 end
 
 # range

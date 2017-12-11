@@ -1,5 +1,7 @@
 using TimeFrames
-using TimeFrames: TimePeriodFrame, DatePeriodFrame, _period_step, CustomTimeFrame
+using TimeFrames: TimePeriodFrame, DatePeriodFrame 
+using TimeFrames: period_step, _period_step
+using TimeFrames: CustomTimeFrame, tonext
 
 
 using Base.Test
@@ -46,7 +48,7 @@ using Base.Test
     end
 
     @testset "_period_step" begin
-        @test _period_step(DateTime) == Dates.Millisecond(1)
+        @test _period_step(DateTime) == period_step
         @test _period_step(Date) == Dates.Day(1)
     end
 end
@@ -153,7 +155,7 @@ end
 
         @testset "grouper/apply" begin
             @test apply(MonthEnd(), Date(2010, 2, 20)) == Date(2010, 2, 28)
-            @test apply(MonthEnd(), DateTime(2010, 2, 20)) == DateTime(2010, 2, 28, 23, 59, 59, 999)
+            @test apply(MonthEnd(), DateTime(2010, 2, 20)) == DateTime(2010, 3, 1) - period_step
 
             d = Date(2016, 7, 20)
             dt = DateTime(2016, 7, 20, 13, 24, 35, 245)
@@ -206,12 +208,33 @@ end
 
             tf = YearEnd(10)
             @test apply(tf, d) == DateTime(2019, 12, 31)
-            @test apply(tf, dt) == DateTime(2019, 12, 31, 23, 59, 59, 999)
+            @test apply(tf, dt) == DateTime(2020, 1, 1) - period_step
 
             tf = Minute(15)
             @test apply(tf, dt) == DateTime(2016, 7, 20, 13, 15, 0, 0)
         end
 
+        @testset "tonext" begin
+            dt = DateTime(2010, 1, 1, 10, 30)
+            @test tonext(TimeFrame("2H"), dt) == DateTime(2010, 1, 1, 12, 0)
+
+            dt = DateTime(2010, 1, 1, 10, 30)
+            @test tonext(TimeFrame("1D"), dt) == DateTime(2010, 1, 2, 0, 0)
+
+            dt = DateTime(2010, 1, 1, 10, 30)
+            @test tonext(TimeFrame("1MS"), dt) == DateTime(2010, 2, 1, 0, 0)
+
+            dt = DateTime(2010, 1, 1, 10, 30)
+            @test tonext(TimeFrame("1M"), dt) == DateTime(2010, 2, 1) - period_step
+
+            dt = DateTime(2010, 6, 5, 10, 30)
+            @test tonext(TimeFrame("1A"), dt) == DateTime(2011, 1, 1) - period_step
+
+            dt = DateTime(2010, 6, 5, 10, 30)
+            @test tonext(TimeFrame("1AS"), dt) == DateTime(2011, 1, 1)
+
+          end
+        
         @testset "range" begin
             dt1 = DateTime(2010, 1, 1, 20)
             dt2 = DateTime(2010, 1, 14, 16)
