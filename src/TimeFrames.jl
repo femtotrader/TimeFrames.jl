@@ -243,12 +243,16 @@ function apply(tf::TimeFrame, dt)
     dt_grouper(tf, typeof(dt))(dt)
 end
 
-function tonext(tf::TimeFrame, dt::Dates.TimeType)
+function tonext(tf::TimeFrame, dt::Dates.TimeType; same=false)
     dt2 = apply(tf, dt)
     if dt2 < dt
         dt2 + tf
     else
-        dt2
+        if !same && dt2 == dt
+            dt2 + tf
+        else
+            dt2
+        end
     end
 end
 

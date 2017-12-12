@@ -218,6 +218,12 @@ end
             dt = DateTime(2010, 1, 1, 10, 30)
             @test tonext(TimeFrame("2H"), dt) == DateTime(2010, 1, 1, 12, 0)
 
+            dt = DateTime(2010, 1, 1, 0, 0)  # ; same=false
+            @test tonext(TimeFrame("2H"), dt) == DateTime(2010, 1, 1, 2, 0)
+
+            dt = DateTime(2010, 1, 1, 0, 0)
+            @test tonext(TimeFrame("2H"), dt; same=true) == DateTime(2010, 1, 1, 0, 0)
+
             dt = DateTime(2010, 1, 1, 10, 30)
             @test tonext(TimeFrame("1D"), dt) == DateTime(2010, 1, 2, 0, 0)
 
