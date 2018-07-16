@@ -4,7 +4,7 @@ using TimeFrames: period_step, _period_step
 using TimeFrames: CustomTimeFrame, tonext
 
 
-using Base.Test
+using Test
 
 @testset "low level (period frame)" begin
     @testset "TimePeriodFrame" begin
