@@ -1,10 +1,11 @@
+using Dates
 using TimeFrames
 using TimeFrames: TimePeriodFrame, DatePeriodFrame 
 using TimeFrames: period_step, _period_step
 using TimeFrames: CustomTimeFrame, tonext
 
 
-using Base.Test
+using Test
 
 @testset "low level (period frame)" begin
     @testset "TimePeriodFrame" begin
@@ -63,26 +64,26 @@ end
         @test YearEnd() != YearBegin()
         @test YearEnd() != YearEnd(5)
 
-        tf = Minute()
+        tf = TimeFrames.Minute()
         @test tf.period.value == 1
 
-        tf = Minute(15)
+        tf = TimeFrames.Minute(15)
         @test tf.period.value == 15
 
-        tf1 = Minute(15)
-        tf2 = Minute(15)
+        tf1 = TimeFrames.Minute(15)
+        tf2 = TimeFrames.Minute(15)
         @test tf1 == tf2
 
-        tf1 = Minute(15)
-        tf2 = Minute(30)
+        tf1 = TimeFrames.Minute(15)
+        tf2 = TimeFrames.Minute(30)
         @test tf1 != tf2
     end
 
     @testset "to string" begin
-        tf = Minute()
+        tf = TimeFrames.Minute()
         @test String(tf) == "T"
 
-        tf = Minute(15)
+        tf = TimeFrames.Minute(15)
         @test String(tf) == "15T"
     end
 
@@ -92,20 +93,20 @@ end
         @testset "simple parse" begin
             tf = TimeFrame("15T")
             @test tf.period.value == 15
-            @test typeof(tf) == Minute
+            @test typeof(tf) == TimeFrames.Minute
 
             tf = TimeFrame("T")
             @test tf.period.value == 1
-            @test typeof(tf) == Minute
+            @test typeof(tf) == TimeFrames.Minute
 
             tf = TimeFrame("15Min")
             @test tf.period.value == 15
             @test String(tf) == "15T"
-            @test typeof(tf) == Minute
+            @test typeof(tf) == TimeFrames.Minute
 
             tf = TimeFrame("5H")
             @test tf.period.value == 5
-            @test typeof(tf) == Hour
+            @test typeof(tf) == TimeFrames.Hour
         end
 
         @testset "NoTimeFrame parse" begin
@@ -183,24 +184,24 @@ end
             #@test apply(tf, dt) == DateTime(2016, 7, 1, 0, 0, 0, 0)
             @test apply(tf, dt) == Date(2016, 7, 1)
 
-            tf = Week()
+            tf = TimeFrames.Week()
             #@test apply(tf, dt) == DateTime(2016, 7, 18, 0, 0, 0, 0)
             @test apply(tf, dt) == Date(2016, 7, 18)
 
-            tf = Day()
+            tf = TimeFrames.Day()
             #@test apply(tf, dt) == DateTime(2016, 7, 20, 0, 0, 0, 0)
             @test apply(tf, dt) == Date(2016, 7, 20)
 
-            tf = Hour()
+            tf = TimeFrames.Hour()
             @test apply(tf, dt) == DateTime(2016, 7, 20, 13, 0, 0, 0)
 
-            tf = Minute()
+            tf = TimeFrames.Minute()
             @test apply(tf, dt) == DateTime(2016, 7, 20, 13, 24, 0, 0)
 
-            tf = Second()
+            tf = TimeFrames.Second()
             @test apply(tf, dt) == DateTime(2016, 7, 20, 13, 24, 35, 0)
 
-            tf = Millisecond()
+            tf = TimeFrames.Millisecond()
             @test apply(tf, dt) == DateTime(2016, 7, 20, 13, 24, 35, 245)
 
             tf = YearBegin(10)
@@ -210,7 +211,7 @@ end
             @test apply(tf, d) == DateTime(2019, 12, 31)
             @test apply(tf, dt) == DateTime(2020, 1, 1) - period_step
 
-            tf = Minute(15)
+            tf = TimeFrames.Minute(15)
             @test apply(tf, dt) == DateTime(2016, 7, 20, 13, 15, 0, 0)
         end
 

@@ -2,12 +2,12 @@ module TimeFrames
 
 import Base: range, +, -, *
 
-using Base.Dates: TimeType
+using Dates
 
 export TimeFrame, Boundary
 export YearBegin, YearEnd
 export MonthBegin, MonthEnd
-export Millisecond, Second, Minute, Hour, Day, Week
+# export Millisecond, Second, Minute, Hour, Day, Week
 export NoTimeFrame
 export apply, range
 export Begin, End
@@ -257,7 +257,7 @@ function tonext(tf::TimeFrame, dt::Dates.TimeType; same=false)
 end
 
 # range
-function range(dt1::TimeType, tf::AbstractPeriodFrame, dt2::TimeType; apply_tf=true)
+function range(dt1::Dates.TimeType, tf::AbstractPeriodFrame, dt2::Dates.TimeType; apply_tf=true)
     td = _period_step(typeof(dt2))
     if apply_tf
         apply(tf, dt1):tf.period:apply(tf, dt2-td)
@@ -266,11 +266,11 @@ function range(dt1::TimeType, tf::AbstractPeriodFrame, dt2::TimeType; apply_tf=t
     end
 end
 
-function range(dt1::TimeType, tf::AbstractPeriodFrame, len::Integer)
+function range(dt1::Dates.TimeType, tf::AbstractPeriodFrame, len::Integer)
     range(dt1, tf.period, len)
 end
 
-function range(tf::AbstractPeriodFrame, dt2::TimeType, len::Integer)
+function range(tf::AbstractPeriodFrame, dt2::Dates.TimeType, len::Integer)
     range(dt2 - len * tf.period, tf.period, len)
 end
 
@@ -296,12 +296,12 @@ promote_timetype(::Type{Dates.Time}, ::Type{MonthEnd})   = throw(InexactError())
 promote_timetype(::Type{Dates.Time}, ::Type{Week})       = throw(InexactError())
 promote_timetype(::Type{Dates.Time}, ::Type{Day})        = throw(InexactError())
 
-+(t::TimeType, tf::TimeFrame) =
++(t::Dates.TimeType, tf::TimeFrame) =
   convert(promote_timetype(typeof(t), typeof(tf)), t) + tf.period
 
 +(tf::TimeFrame, t::TimeType) = t + tf
 
--(t::TimeType, tf::TimeFrame) =
+-(t::Dates.TimeType, tf::TimeFrame) =
   convert(promote_timetype(typeof(t), typeof(tf)), t) - tf.period
 
 
