@@ -2,7 +2,7 @@ module TimeFrames
 
 import Base: range, +, -, *
 
-using Base.Dates: TimeType
+using Dates: TimeType
 
 export TimeFrame, Boundary
 export YearBegin, YearEnd
