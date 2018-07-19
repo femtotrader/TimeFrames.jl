@@ -67,70 +67,70 @@ end
 #Microsecond(n::Integer) = Microsecond(Dates.Microsecond(n), Begin)
 
 struct Millisecond <: AbstractTimePeriodFrame
-    period::Dates.TimePeriod
+    period::Dates.Millisecond
     boundary::Boundary
 end
 Millisecond() = Millisecond(Dates.Millisecond(1), Begin)
 Millisecond(n::Integer) = Millisecond(Dates.Millisecond(n), Begin)
 
 struct Second <: AbstractTimePeriodFrame
-    period::Dates.TimePeriod
+    period::Dates.Second
     boundary::Boundary
 end
 Second() = Second(Dates.Second(1), Begin)
 Second(n::Integer) = Second(Dates.Second(n), Begin)
 
 struct Minute <: AbstractTimePeriodFrame
-    period::Dates.TimePeriod
+    period::Dates.Minute
     boundary::Boundary
 end
 Minute() = Minute(Dates.Minute(1), Begin)
 Minute(n::Integer) = Minute(Dates.Minute(n), Begin)
 
 struct Hour <: AbstractTimePeriodFrame
-    period::Dates.TimePeriod
+    period::Dates.Hour
     boundary::Boundary
 end
 Hour() = Hour(Dates.Hour(1), Begin)
 Hour(n::Integer) = Hour(Dates.Hour(n), Begin)
 
 struct Day <: AbstractDatePeriodFrame
-    period::Dates.DatePeriod
+    period::Dates.Day
     boundary::Boundary
 end
 Day() = Day(Dates.Day(1), Begin)
 Day(n::Integer) = Day(Dates.Day(n), Begin)
 
 struct Week <: AbstractDatePeriodFrame
-    period::Dates.DatePeriod
+    period::Dates.Week
     boundary::Boundary
 end
 Week() = Week(Dates.Week(1), Begin)
 Week(n::Integer) = Week(Dates.Week(n), Begin)
 
 struct MonthEnd <: AbstractDatePeriodFrame
-    period::Dates.DatePeriod
+    period::Dates.Month
     boundary::Boundary
 end
 MonthEnd() = MonthEnd(Dates.Month(1), End)
 MonthEnd(n::Integer) = MonthEnd(Dates.Month(n), End)
 
 struct MonthBegin <: AbstractDatePeriodFrame
-    period::Dates.DatePeriod
+    period::Dates.Month
     boundary::Boundary
 end
 MonthBegin() = MonthBegin(Dates.Month(1), Begin)
 MonthBegin(n::Integer) = MonthBegin(Dates.Month(n), Begin)
 
 struct YearEnd <: AbstractDatePeriodFrame
-    period::Dates.DatePeriod
+    period::Dates.Year
     boundary::Boundary
 end
 YearEnd() = YearEnd(Dates.Year(1), End)
 YearEnd(n::Integer) = YearEnd(Dates.Year(n), End)
 
 struct YearBegin <: AbstractDatePeriodFrame
-    period::Dates.DatePeriod
+    period::Dates.Year
     boundary::Boundary
 end
 YearBegin() = YearBegin(Dates.Year(1), Begin)
@@ -296,13 +296,13 @@ promote_timetype(::Type{Dates.Time}, ::Type{MonthEnd})   = throw(InexactError())
 promote_timetype(::Type{Dates.Time}, ::Type{Week})       = throw(InexactError())
 promote_timetype(::Type{Dates.Time}, ::Type{Day})        = throw(InexactError())
 
-+(t::Dates.TimeType, tf::TimeFrame) =
-  convert(promote_timetype(typeof(t), typeof(tf)), t) + tf.period
++(t::T, tf::TF) where {T<:Dates.TimeType, TF<:TimeFrame} =
+  convert(promote_timetype(T, TF), t) + tf.period
 
 +(tf::TimeFrame, t::TimeType) = t + tf
 
--(t::Dates.TimeType, tf::TimeFrame) =
-  convert(promote_timetype(typeof(t), typeof(tf)), t) - tf.period
+-(t::T, tf::TF) where {T<:Dates.TimeType, TF<:TimeFrame} =
+  convert(promote_timetype(T, TF), t) - tf.period
 
 
 *(tf::AbstractPeriodFrame, n::Int) = typeof(tf)(tf.period * n, tf.boundary)
