@@ -267,11 +267,11 @@ function range(dt1::Dates.TimeType, tf::AbstractPeriodFrame, dt2::Dates.TimeType
 end
 
 function range(dt1::Dates.TimeType, tf::AbstractPeriodFrame, len::Integer)
-    range(dt1, tf.period, len)
+    range(dt1, step=tf.period, length=len)
 end
 
 function range(tf::AbstractPeriodFrame, dt2::Dates.TimeType, len::Integer)
-    range(dt2 - len * tf.period, tf.period, len)
+    range(dt2 - len * tf.period, step=tf.period, length=len)
 end
 
 range(dt1::DateTime, tf::NoTimeFrame, dt2::DateTime) = [dt1]
@@ -289,12 +289,12 @@ promote_timetype(::Type{Date}, ::Type{Second})      = DateTime
 promote_timetype(::Type{Date}, ::Type{Millisecond}) = DateTime
 
 promote_timetype(::Type{Dates.Time}, ::Type)             = Dates.Time
-promote_timetype(::Type{Dates.Time}, ::Type{YearBegin})  = throw(InexactError())
-promote_timetype(::Type{Dates.Time}, ::Type{YearEnd})    = throw(InexactError())
-promote_timetype(::Type{Dates.Time}, ::Type{MonthBegin}) = throw(InexactError())
-promote_timetype(::Type{Dates.Time}, ::Type{MonthEnd})   = throw(InexactError())
-promote_timetype(::Type{Dates.Time}, ::Type{Week})       = throw(InexactError())
-promote_timetype(::Type{Dates.Time}, ::Type{Day})        = throw(InexactError())
+promote_timetype(::Type{Dates.Time}, ::Type{YearBegin})  = throw(InexactError(:none, Any, nothing))
+promote_timetype(::Type{Dates.Time}, ::Type{YearEnd})    = throw(InexactError(:none, Any, nothing))
+promote_timetype(::Type{Dates.Time}, ::Type{MonthBegin}) = throw(InexactError(:none, Any, nothing))
+promote_timetype(::Type{Dates.Time}, ::Type{MonthEnd})   = throw(InexactError(:none, Any, nothing))
+promote_timetype(::Type{Dates.Time}, ::Type{Week})       = throw(InexactError(:none, Any, nothing))
+promote_timetype(::Type{Dates.Time}, ::Type{Day})        = throw(InexactError(:none, Any, nothing))
 
 +(t::T, tf::TF) where {T<:Dates.TimeType, TF<:TimeFrame} =
   convert(promote_timetype(T, TF), t) + tf.period
