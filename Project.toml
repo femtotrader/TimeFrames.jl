@@ -1,7 +1,7 @@
 name = "TimeFrames"
 uuid = "4da64cfa-c44d-4300-a3f2-26305d84e88b"
 authors = ["FemtoTrader <femto.trader@gmail.com>"]
-version = "0.7.0-DEV"
+version = "0.7.0"
 
 [deps]
 Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
