@@ -40,12 +40,12 @@ using Pkg
 Pkg.add("TimeFrames")
 ```
 
-Version 0.7.0 is available as a GitHub release. Until it is registered in General,
+Version 0.8.0 is available as a GitHub release. Until it is registered in General,
 install the tagged repository revision explicitly:
 
 ```julia
 using Pkg
-Pkg.add(url="https://github.com/femtotrader/TimeFrames.jl", rev="v0.7.0")
+Pkg.add(url="https://github.com/femtotrader/TimeFrames.jl", rev="v0.8.0")
 ```
 
 For local development, use `Pkg.develop(path="/path/to/TimeFrames.jl")`.

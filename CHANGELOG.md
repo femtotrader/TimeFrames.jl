@@ -7,7 +7,7 @@ Pkg's compatibility convention for pre-1.0 packages.
 
 ## [Unreleased]
 
-## [0.7.0] - 2026-10-05
+## [0.8.0] - 2026-10-05
 
 ### Added
 
@@ -58,8 +58,9 @@ Pkg's compatibility convention for pre-1.0 packages.
 
 ## Publication status
 
-Version 0.7.0 is published as a GitHub release. Its March 2025 General registration
-attempt was closed without merging, as tracked in issue #57. General registration
-remains pending; a GitHub release does not itself update the registry.
+Version 0.8.0 is published as a GitHub release. The earlier 0.7.0 General
+registration attempt from March 2025 was closed without merging, as tracked in
+issue #57. A GitHub release does not itself update the registry; registration is
+handled separately by Registrator.
 
 Assisted-by: AI

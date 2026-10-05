@@ -1,6 +1,6 @@
 # Migration
 
-This guide describes the GitHub release 0.7.0. The earlier registration attempt
+This guide describes the GitHub release 0.8.0. The earlier registration attempt
 was closed without merging; General registration remains pending. The registered
 version is still 0.2.0 until a new registration completes.
 
@@ -37,7 +37,7 @@ version is still 0.2.0 until a new registration completes.
 
 ## Downstream packages
 
-Julia's compatibility rules treat 0.2 and 0.7 as different compatibility series.
+Julia's compatibility rules treat 0.2 and 0.8 as different compatibility series.
 Downstream packages must test against the migrated version before extending
 their `[compat]` entry. Raising TimeFrames' minimum Julia version may also require
 raising the downstream package's supported minimum.

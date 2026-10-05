@@ -1,7 +1,7 @@
 # Modernization requirements
 
 These requirements describe the migration before publication; milestones are not
-releases. These requirements apply to version 0.7.0; General registration remains
+releases. These requirements apply to version 0.8.0; General registration remains
 pending after its GitHub release.
 
 | ID | Priority | Requirement | Verification |
