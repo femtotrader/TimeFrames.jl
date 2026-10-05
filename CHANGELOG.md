@@ -47,6 +47,11 @@ Pkg's compatibility convention for pre-1.0 packages.
 - Promote dates to datetimes for generic subday frame arithmetic.
 - Reject generic calendar frame arithmetic on `Time` consistently.
 
+### Removed
+
+- Obsolete disabled documentation workflow, superseded by the active GitHub
+  Actions documentation and Pages deployment workflow.
+
 ## Publication status
 
 The repository's version is 0.7.0. Its March 2025 registration attempt was closed
