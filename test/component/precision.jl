@@ -5,6 +5,8 @@ using TestItemRunner
     using NanoDates
     using TimeFrames
 
+    @test !isnothing(Base.get_extension(TimeFrames, :TimeFramesNanoDatesExt))
+
     @test TimeFrame("U").period == Dates.Microsecond(1)
     @test TimeFrame("10us").period == Dates.Microsecond(10)
     @test TimeFrame("N").period == Dates.Nanosecond(1)
@@ -54,5 +56,24 @@ using TestItemRunner
               DateTime(2024, 1, 1, 0, 0, 0, 1)
         @test apply(tf"1000U", DateTime(2024, 1, 1, 0, 0, 0, 1)) ==
               DateTime(2024, 1, 1, 0, 0, 0, 1)
+    end
+end
+
+@testitem "NanoDates extension load order" begin
+    project = dirname(Base.active_project())
+    for imports in (
+        "using TimeFrames; @assert isnothing(Base.get_extension(TimeFrames, :TimeFramesNanoDatesExt)); using NanoDates",
+        "using NanoDates; using TimeFrames",
+    )
+        script =
+            imports *
+            "; using Dates; " *
+            "@assert !isnothing(Base.get_extension(TimeFrames, :TimeFramesNanoDatesExt)); " *
+            "dt = NanoDates.NanoDate(2024, 1, 1, 0, 0, 0, 0, 123, 456); " *
+            "@assert TimeFrames.apply(TimeFrames.TimeFrame(\"10U\"), dt) == " *
+            "NanoDates.NanoDate(2024, 1, 1, 0, 0, 0, 0, 120)"
+        @test success(
+            `$(Base.julia_cmd()) --startup-file=no --project=$project -e $script`,
+        )
     end
 end

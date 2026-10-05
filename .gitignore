@@ -17,6 +17,10 @@
 /src/*
 !/src/*.jl
 
+!/ext/
+/ext/*
+!/ext/*.jl
+
 !/test/
 /test/*
 !/test/*.jl

@@ -102,14 +102,6 @@ end
 
 _period_step(::Type{Dates.Time}) = Dates.Nanosecond(1)
 
-function _period_step(::Type{T}) where {T<:Dates.AbstractDateTime}
-    epoch = convert(T, DateTime(2000))
-    step = epoch + Dates.Nanosecond(1) - epoch
-    step == Dates.Nanosecond(1) ||
-        throw(ArgumentError("time type must preserve nanosecond precision"))
-    Dates.Nanosecond(1)
-end
-
 struct Microsecond <: AbstractTimePeriodFrame
     period::Dates.Microsecond
     boundary::Boundary
@@ -310,10 +302,6 @@ _with_boundary(tf::Week, boundary) =
 
 _bucket_start(tf::AbstractPeriodFrame, dt) = floor(dt, tf.period)
 
-function _time_nanoseconds(dt::Dates.AbstractDateTime)
-    milliseconds = Int128(Dates.value(DateTime(dt))) - Dates.value(DateTime(0))
-    milliseconds * 1_000_000 + mod(Dates.value(Dates.Time(dt)), 1_000_000)
-end
 _time_nanoseconds(dt::Dates.Time) = Int128(Dates.value(dt))
 
 function _round_subday(tf::AbstractTimePeriodFrame, dt, boundary)
@@ -330,12 +318,8 @@ function _round_subday(tf::AbstractTimePeriodFrame, dt, boundary)
     dt + Dates.Nanosecond(offset)
 end
 
-function _bucket_start(
-    tf::AbstractTimePeriodFrame,
-    dt::Union{Dates.Time,Dates.AbstractDateTime},
-)
-    dt isa DateTime ? floor(dt, tf.period) : _round_subday(tf, dt, Begin)
-end
+_bucket_start(tf::AbstractTimePeriodFrame, dt::Dates.Time) =
+    _round_subday(tf, dt, Begin)
 function _bucket_start(tf::Week, dt)
     shift = Dates.Day(tf.firstdayofweek - 1)
     floor(dt - shift, tf.period) + shift
@@ -411,10 +395,6 @@ apply(::NoTimeFrame, dt) = dt
 
 apply(tf::AbstractTimePeriodFrame, dt::Dates.Time) =
     _round_subday(tf, dt, tf.boundary)
-function apply(tf::AbstractTimePeriodFrame, dt::Dates.AbstractDateTime)
-    dt isa DateTime && return dt_grouper(tf, typeof(dt))(dt)
-    _round_subday(tf, dt, tf.boundary)
-end
 
 function apply(tf::Week, dt::Dates.TimeType)
     start = _bucket_start(tf, dt)
@@ -552,7 +532,6 @@ macro tf_str(tf)
 end
 
 promote_timetype(::Type{DateTime}, ::Type) = DateTime
-promote_timetype(::Type{T}, ::Type) where {T<:Dates.AbstractDateTime} = T
 
 promote_timetype(::Type{Date}, ::Type) = Date
 promote_timetype(::Type{Date}, ::Type{<:AbstractTimePeriodFrame}) = DateTime

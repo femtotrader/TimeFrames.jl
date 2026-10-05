@@ -6,6 +6,12 @@ authors = ["FemtoTrader"]
 [deps]
 Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
 
+[weakdeps]
+NanoDates = "46f1a544-deae-4307-8689-c12aa3c955c6"
+
+[extensions]
+TimeFramesNanoDatesExt = "NanoDates"
+
 [compat]
 Aqua = "0.8"
 Dates = "1.10.0"

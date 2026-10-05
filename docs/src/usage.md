@@ -74,9 +74,11 @@ Calendar rounding of `Time` is unsupported.
 ### Submillisecond precision
 
 Use `Time` for time-of-day values, or NanoDates 2.1 for dates with nanosecond
-precision. No NanoDates runtime dependency is required by TimeFrames; install
-it separately when using `NanoDate`. Subday frames round these values using
-integer nanoseconds, including multi-unit buckets.
+precision. NanoDates is a weak dependency: installing TimeFrames does not install
+NanoDates automatically. Install it separately when using `NanoDate`. Loading
+both packages activates `TimeFramesNanoDatesExt`, regardless of loading order.
+Subday frames then round NanoDate values using integer nanoseconds, including
+multi-unit buckets. The core package supports Dates.Time independently.
 
 `DateTime` only stores milliseconds. Applying a smaller period to it throws
 `InexactError`; arithmetic and ranges also reject steps below its precision.

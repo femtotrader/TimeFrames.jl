@@ -16,8 +16,9 @@ Pkg's compatibility convention for pre-1.0 packages.
   alignment and retained offsets for fixed beginning frames (#5, #31).
 - Documentation for the distinction between period arithmetic and `tonext` (#39).
 - Microsecond and nanosecond frames (`U` / `US`, `N` / `NS`) with precise
-  subday grouping for Dates.Time and NanoDates.NanoDate; NanoDates is a test-only
-  dependency (#18).
+  subday grouping for Dates.Time and NanoDates.NanoDate (#18).
+- NanoDates weak dependency and conditional `TimeFramesNanoDatesExt` integration,
+  with tests for both loading orders and absence of activation without NanoDates.
 - Executable documentation examples for the `tf"5Min"` literal and both
   length-based range forms, completing the documentation follow-up in issue #30.
 
