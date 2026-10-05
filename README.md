@@ -25,7 +25,8 @@ julia> apply(TimeFrame("2H"), DateTime(2016, 9, 11, 20, 9))
 ```
 
 See the [usage guide](docs/src/usage.md), [API reference](docs/src/api.md), and
-[migration guide](docs/src/migration.md). The migration is unreleased; see the
+[migration guide](docs/src/migration.md). Version 0.7.0 is a GitHub release;
+registration in General remains pending. See the
 [changelog](CHANGELOG.md) before upgrading from the registered 0.2.0 version.
 The documentation workflow publishes to
 [GitHub Pages](https://femtotrader.github.io/TimeFrames.jl/) after validated builds

@@ -7,6 +7,8 @@ Pkg's compatibility convention for pre-1.0 packages.
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-10-05
+
 ### Added
 
 - Regression tests for explicit boundaries, invalid frequency strings, identity
@@ -41,6 +43,8 @@ Pkg's compatibility convention for pre-1.0 packages.
 
 ### Fixed
 
+- Use native runner architecture in CI, with explicit `macos-15-intel` and
+  `macos-15` runners for Intel and Apple Silicon.
 - Construct explicitly requested boundaries without mutating immutable frames.
 - Accept `AbstractString` inputs, including substring views.
 - Apply identity frames without changing the input and serialize them as `""`.
@@ -54,8 +58,8 @@ Pkg's compatibility convention for pre-1.0 packages.
 
 ## Publication status
 
-The repository's version is 0.7.0. Its March 2025 registration attempt was closed
-without merging, as tracked in issue #57. This changelog does not claim that
-0.7.0 was released. Registration will follow migration and validation.
+Version 0.7.0 is published as a GitHub release. Its March 2025 General registration
+attempt was closed without merging, as tracked in issue #57. General registration
+remains pending; a GitHub release does not itself update the registry.
 
 Assisted-by: AI

@@ -1,8 +1,8 @@
 # Migration
 
-The repository identifies the package as 0.7.0; its earlier registration attempt
-was closed without merging. This migration is unreleased. The final release
-number and notes must be checked against General before registration.
+This guide describes the GitHub release 0.7.0. The earlier registration attempt
+was closed without merging; General registration remains pending. The registered
+version is still 0.2.0 until a new registration completes.
 
 ## Breaking changes
 
@@ -56,4 +56,4 @@ semantics remain unchanged and are covered by the historical test suite.
 5. Trigger Registrator with release notes containing a `Breaking changes`
    section; follow the resulting registry PR to completion.
 
-Publishing is a separate step after this migration is validated.
+General registration is a separate step from publishing a GitHub release.

@@ -1,7 +1,8 @@
 # Modernization requirements
 
 These requirements describe the migration before publication; milestones are not
-releases. The existing package version is 0.7.0, and publication remains pending.
+releases. These requirements apply to version 0.7.0; General registration remains
+pending after its GitHub release.
 
 | ID | Priority | Requirement | Verification |
 | --- | --- | --- | --- |

@@ -40,12 +40,12 @@ using Pkg
 Pkg.add("TimeFrames")
 ```
 
-The migration is being prepared for publication. Until a modern version is
-registered, use the repository explicitly to test the migrated package:
+Version 0.7.0 is available as a GitHub release. Until it is registered in General,
+install the tagged repository revision explicitly:
 
 ```julia
 using Pkg
-Pkg.add(url="https://github.com/femtotrader/TimeFrames.jl", rev="main")
+Pkg.add(url="https://github.com/femtotrader/TimeFrames.jl", rev="v0.7.0")
 ```
 
 For local development, use `Pkg.develop(path="/path/to/TimeFrames.jl")`.
