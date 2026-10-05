@@ -23,7 +23,8 @@ Construct a time bucket from a frequency, a Dates period, or a custom grouping
 function. An empty string or no argument creates an identity frame.
 
 Supported frequency units are `A`, `AS`, `M`, `MS`, `W`, `D`, `H`, `T` (or
-`MIN`), `S`, and `L`. Units are case insensitive and may have a positive integer
+`MIN`), `S`, and `L` (or lowercase `ms`). Units are case insensitive except
+that `ms` means milliseconds and `MS` means month start. Units may have a positive integer
 prefix. `A` and `M` default to `End`; other units default to `Begin`.
 Invalid strings throw `ArgumentError`.
 """
@@ -223,7 +224,8 @@ function TimeFrame(s::AbstractString; boundary = UndefBoundary)
     value = isempty(m[1]) ? 1 : tryparse(Int, m[1])
     (isnothing(value) || value <= 0) &&
         throw(ArgumentError("TimeFrame magnitude must be a positive Int"))
-    tf = _D_STR2TIMEFRAME[uppercase(m[2])](value)
+    unit = m[2] == "ms" ? "L" : uppercase(m[2])
+    tf = _D_STR2TIMEFRAME[unit](value)
     boundary == UndefBoundary ? tf : typeof(tf)(tf.period, boundary)
 end
 
@@ -293,6 +295,12 @@ function tonext(tf::TimeFrame, dt::Dates.TimeType; same = false)
 end
 
 # range
+Base.:(:)(
+    start::Dates.TimeType,
+    tf::AbstractPeriodFrame,
+    stop::Dates.TimeType,
+) = start:tf.period:stop
+
 """
     range(start::Dates.TimeType, tf::AbstractPeriodFrame, stop::Dates.TimeType; apply_tf=true)
     range(start::Dates.TimeType, tf::AbstractPeriodFrame, length::Integer)

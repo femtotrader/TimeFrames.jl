@@ -9,8 +9,14 @@ Pkg's compatibility convention for pre-1.0 packages.
 
 ### Added
 
+- Colon syntax for ranges with a timeframe step (#6).
 - Executable documentation examples for the `tf"5Min"` literal and both
   length-based range forms, completing the documentation follow-up in issue #30.
+
+### Changed
+
+- **Breaking:** lowercase `ms` denotes milliseconds rather than month start;
+  use uppercase `MS` for month start (#43).
 
 ## [0.8.0] - 2026-10-05
 

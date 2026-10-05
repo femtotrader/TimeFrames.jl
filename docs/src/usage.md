@@ -3,7 +3,7 @@
 ## Frequency strings
 
 Strings accept an optional positive integer magnitude followed by one unit.
-Units are case insensitive; whitespace, signed magnitudes, and fractional
+Units are case insensitive except for `ms` and `MS`; whitespace, signed magnitudes, and fractional
 magnitudes are rejected with `ArgumentError`.
 
 | Unit | Meaning | Default boundary |
@@ -17,9 +17,10 @@ magnitudes are rejected with `ArgumentError`.
 | `H` | Hour | Begin |
 | `T`, `MIN` | Minute | Begin |
 | `S` | Second | Begin |
-| `L` | Millisecond | Begin |
+| `L`, `ms` | Millisecond | Begin |
 
-`MS` means month start, not milliseconds. Use `L` for milliseconds.
+`MS` means month start; lowercase `ms` means milliseconds. Use `L` for the
+case-insensitive millisecond alias. Mixed-case `Ms` and `mS` remain month start.
 The empty string and `TimeFrame()` create `NoTimeFrame()`.
 `String` returns the canonical unit for named period frames, such as `15T`.
 It returns the empty string for an identity frame. Generic Dates period frames
@@ -87,6 +88,23 @@ julia> apply(tf, DateTime(2024, 1, 1, 12, 19))
 ```
 
 ## Ranges
+
+Colon syntax uses the underlying Dates period, preserves the start's offset,
+and includes the stop when it lies on the step sequence. It does not round
+values according to the frame's boundary policy.
+
+```jldoctest
+julia> using Dates, TimeFrames
+
+julia> collect(Date(2024, 1, 1):tf"D":Date(2024, 1, 3))
+3-element Vector{Date}:
+ 2024-01-01
+ 2024-01-02
+ 2024-01-03
+
+julia> String(tf"250ms")
+"250L"
+```
 
 The endpoint form excludes the stop value and rounds both endpoints by default.
 Use `apply_tf=false` to retain the start's offset. Length-based forms retain
