@@ -7,6 +7,11 @@ Pkg's compatibility convention for pre-1.0 packages.
 
 ## [Unreleased]
 
+### Added
+
+- Executable documentation examples for the `tf"5Min"` literal and both
+  length-based range forms, completing the documentation follow-up in issue #30.
+
 ## [0.8.0] - 2026-10-05
 
 ### Added

@@ -25,6 +25,21 @@ The empty string and `TimeFrame()` create `NoTimeFrame()`.
 It returns the empty string for an identity frame. Generic Dates period frames
 and custom grouping functions do not have frequency-string serialization.
 
+### String literal macro
+
+The `tf"..."` macro uses the same frequency parser as `TimeFrame("...")`.
+For example, the mixed-case `Min` alias means minutes:
+
+```jldoctest
+julia> using Dates, TimeFrames
+
+julia> String(tf"5Min")
+"5T"
+
+julia> apply(tf"5Min", DateTime(2024, 1, 1, 12, 9))
+2024-01-01T12:05:00
+```
+
 ## Boundaries
 
 Beginning frames use `floor`. End frames use `ceil` and subtract one day for
@@ -83,6 +98,16 @@ julia> using Dates, TimeFrames
 julia> collect(range(Date(2024, 1, 1), tf"D", Date(2024, 1, 4)))
 3-element Vector{Date}:
  2024-01-01
+ 2024-01-02
+ 2024-01-03
+
+julia> collect(range(Date(2024, 1, 1), tf"D", 2))
+2-element Vector{Date}:
+ 2024-01-01
+ 2024-01-02
+
+julia> collect(range(tf"D", Date(2024, 1, 4), 2))
+2-element Vector{Date}:
  2024-01-02
  2024-01-03
 ```
