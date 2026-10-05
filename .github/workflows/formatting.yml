@@ -1,0 +1,24 @@
+name: Formatting
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: julia-actions/setup-julia@v3
+        with:
+          version: '1.10'
+      - uses: julia-actions/cache@v3
+      - name: Install formatting dependencies
+        run: julia --startup-file=no --project=dev -e 'using Pkg; Pkg.instantiate()'
+      - name: Check formatting
+        run: julia --startup-file=no --project=dev dev/format.jl check

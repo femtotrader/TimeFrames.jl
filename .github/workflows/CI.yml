@@ -11,23 +11,31 @@ concurrency:
   # Cancel intermediate builds: only if it is a pull request build.
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: ${{ startsWith(github.ref, 'refs/pull/') }}
+permissions:
+  contents: read
 jobs:
   test:
     name: Julia ${{ matrix.version }} - ${{ matrix.os }} - ${{ matrix.arch }} - ${{ github.event_name }}
     runs-on: ${{ matrix.os }}
+    continue-on-error: ${{ matrix.version == 'nightly' }}
     strategy:
       fail-fast: false
       matrix:
         version:
-          # - '1.0'
-          # - '1.9'
           - '1.10'
-          - '1.11'
+          - '1.13'
           - 'nightly'
         os:
           - ubuntu-latest
+          - windows-latest
+          - macos-latest
         arch:
           - x64
+        exclude:
+          - version: 'nightly'
+            os: windows-latest
+          - version: 'nightly'
+            os: macos-latest
     steps:
       - uses: actions/checkout@v7
       - uses: julia-actions/setup-julia@v3

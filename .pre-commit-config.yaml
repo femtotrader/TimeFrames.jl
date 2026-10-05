@@ -1,0 +1,9 @@
+repos:
+  - repo: local
+    hooks:
+      - id: julia-format
+        name: Julia formatting
+        entry: just format-check
+        language: system
+        types: [julia]
+        pass_filenames: false
