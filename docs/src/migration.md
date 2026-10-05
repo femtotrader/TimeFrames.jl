@@ -1,17 +1,19 @@
 # Migration
 
-## Unreleased changes
+## Upgrading from 0.8 to 0.9
 
 Lowercase `ms` now means milliseconds. Code using `TimeFrame("ms")` for
 month start must use `TimeFrame("MS")` instead. This breaking correction
-belongs to the next compatibility series; it is not part of the v0.8.0 tag.
+is included in 0.9.0; it is not part of the v0.8.0 tag.
 
 DateTime arithmetic and range construction now reject microsecond/nanosecond
 steps that cannot be converted exactly to milliseconds. This also affects
 generic frames such as `TimeFrame(Dates.Nanosecond(1))`. Replace DateTime inputs
 with `Dates.Time` or NanoDates.NanoDate where submillisecond precision is needed.
 
-The released migration described below is available as version 0.8.0 in General.
+## Upgrading from 0.2 to 0.8
+
+The migration described below is available as version 0.8.0 in General.
 The earlier 0.7.0 registration attempt was closed without merging; the 0.8.0
 registration was merged on 2026-10-05 in JuliaRegistries/General#170649.
 
@@ -48,7 +50,7 @@ registration was merged on 2026-10-05 in JuliaRegistries/General#170649.
 
 ## Downstream packages
 
-Julia's compatibility rules treat 0.2 and 0.8 as different compatibility series.
+Julia's compatibility rules treat 0.2, 0.8, and 0.9 as different compatibility series.
 Downstream packages must test against the migrated version before extending
 their `[compat]` entry. Raising TimeFrames' minimum Julia version may also require
 raising the downstream package's supported minimum.

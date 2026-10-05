@@ -2,8 +2,8 @@
 
 These requirements describe the migration before publication; milestones are not
 releases. These requirements record the migration released and registered as
-version 0.8.0. Subsequent issue follow-ups are recorded under Unreleased in the
-changelog and target the next compatibility series.
+version 0.8.0. Subsequent issue follow-ups are recorded under version 0.9.0 in the
+changelog.
 
 | ID | Priority | Requirement | Verification |
 | --- | --- | --- | --- |

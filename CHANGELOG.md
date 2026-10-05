@@ -7,6 +7,8 @@ Pkg's compatibility convention for pre-1.0 packages.
 
 ## [Unreleased]
 
+## [0.9.0] - 2026-10-05
+
 ### Added
 
 - Colon syntax for ranges with a timeframe step (#6).
@@ -90,7 +92,8 @@ Version 0.8.0 is registered in General through JuliaRegistries/General#170649
 and published as a GitHub release. The earlier 0.7.0 General
 registration attempt from March 2025 was closed without merging, as tracked in
 issue #57. A GitHub release does not itself update the registry; registration is
-handled separately by Registrator. Unreleased changes target the next
-compatibility series, 0.9, and are not included in the registered 0.8.0 tag.
+handled separately by Registrator. Version 0.9.0 introduces the next
+compatibility series with the breaking changes listed above. General
+registration of 0.9.0 is tracked separately from its GitHub release.
 
 Assisted-by: AI

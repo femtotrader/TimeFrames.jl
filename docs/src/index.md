@@ -40,22 +40,23 @@ using Pkg
 Pkg.add("TimeFrames")
 ```
 
-Version 0.8.0 is registered in General and published as a GitHub release.
-To install that exact release for reproducibility:
+Version 0.9.0 includes the new calendar and precision APIs. General registration
+is separate from the GitHub release; to install the exact tag independently
+of registry propagation:
 
 ```julia
 using Pkg
-Pkg.add(name="TimeFrames", version="0.8.0")
+Pkg.add(url="https://github.com/femtotrader/TimeFrames.jl", rev="v0.9.0")
 ```
 
 For local development, use `Pkg.develop(path="/path/to/TimeFrames.jl")`.
 Record the commit hash when testing an unreleased repository revision.
 
-!!! note "Development documentation"
-    These pages follow `main` and include unreleased additions. The `ms`
+!!! note "Version 0.9"
+    These pages follow `main`. The `ms`
     correction, colon ranges, weekly anchors, business months, inclusive
-    calendar ranges, and submillisecond frames are intended for the next
-    compatibility series, 0.9. They are not included in v0.8.0.
+    calendar ranges, and submillisecond frames are included in 0.9.0.
+    They are not included in v0.8.0. Review the migration guide before upgrading.
 
 ## Quick start
 

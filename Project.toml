@@ -1,6 +1,6 @@
 name = "TimeFrames"
 uuid = "51948d2b-02eb-5b28-9840-c902cc6821c9"
-version = "0.8.0"
+version = "0.9.0"
 authors = ["FemtoTrader"]
 
 [deps]
