@@ -28,13 +28,10 @@ jobs:
         os:
           - ubuntu-latest
           - windows-latest
-          - macos-15-intel
           - macos-15
         exclude:
           - version: 'nightly'
             os: windows-latest
-          - version: 'nightly'
-            os: macos-15-intel
           - version: 'nightly'
             os: macos-15
     steps:

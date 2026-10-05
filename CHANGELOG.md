@@ -43,8 +43,8 @@ Pkg's compatibility convention for pre-1.0 packages.
 
 ### Fixed
 
-- Use native runner architecture in CI, with explicit `macos-15-intel` and
-  `macos-15` runners for Intel and Apple Silicon.
+- Use native runner architecture in CI, with an explicit `macos-15` runner for
+  Apple Silicon; macOS Intel is outside the CI matrix.
 - Construct explicitly requested boundaries without mutating immutable frames.
 - Accept `AbstractString` inputs, including substring views.
 - Apply identity frames without changing the input and serialize them as `""`.
