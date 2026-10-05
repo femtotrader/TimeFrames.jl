@@ -15,6 +15,9 @@ Pkg's compatibility convention for pre-1.0 packages.
 - Inclusive `date_range` and keyword `range` forms, with calendar boundary
   alignment and retained offsets for fixed beginning frames (#5, #31).
 - Documentation for the distinction between period arithmetic and `tonext` (#39).
+- Microsecond and nanosecond frames (`U` / `US`, `N` / `NS`) with precise
+  subday grouping for Dates.Time and NanoDates.NanoDate; NanoDates is a test-only
+  dependency (#18).
 - Executable documentation examples for the `tf"5Min"` literal and both
   length-based range forms, completing the documentation follow-up in issue #30.
 
@@ -22,6 +25,9 @@ Pkg's compatibility convention for pre-1.0 packages.
 
 - **Breaking:** lowercase `ms` denotes milliseconds rather than month start;
   use uppercase `MS` for month start (#43).
+- **Breaking:** arithmetic and range construction reject submillisecond steps
+  not exactly representable by DateTime, including generic period frames,
+  rather than inheriting Dates' silent rounding (#18).
 
 ### Fixed
 
@@ -79,9 +85,11 @@ Pkg's compatibility convention for pre-1.0 packages.
 
 ## Publication status
 
-Version 0.8.0 is published as a GitHub release. The earlier 0.7.0 General
+Version 0.8.0 is registered in General through JuliaRegistries/General#170649
+and published as a GitHub release. The earlier 0.7.0 General
 registration attempt from March 2025 was closed without merging, as tracked in
 issue #57. A GitHub release does not itself update the registry; registration is
-handled separately by Registrator.
+handled separately by Registrator. Unreleased changes target the next
+compatibility series, 0.9, and are not included in the registered 0.8.0 tag.
 
 Assisted-by: AI

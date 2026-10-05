@@ -24,7 +24,8 @@ Construct a time bucket from a frequency, a Dates period, or a custom grouping
 function. An empty string or no argument creates an identity frame.
 
 Supported frequency units are `A`, `AS`, `M`, `MS`, `W`, `D`, `H`, `T` (or
-`MIN`), `S`, and `L` (or lowercase `ms`). Units are case insensitive except
+`MIN`), `S`, `L` (or lowercase `ms`), `U` (or `US`), and `N` (or `NS`).
+Units are case insensitive except
 that `ms` means milliseconds and `MS` means month start. Units may have a positive integer
 prefix. `A` and `M` default to `End`; other units default to `Begin`.
 Invalid strings throw `ArgumentError`.
@@ -99,12 +100,27 @@ function _period_step(::Type{DateTime})
     period_step
 end
 
-#struct Microsecond <: AbstractTimePeriodFrame
-#    period::Dates.TimePeriod
-#    boundary::Boundary
-#end
-#Microsecond() = Microsecond(Dates.Microsecond(1), Begin)
-#Microsecond(n::Integer) = Microsecond(Dates.Microsecond(n), Begin)
+_period_step(::Type{Dates.Time}) = Dates.Nanosecond(1)
+
+function _period_step(::Type{T}) where {T<:Dates.AbstractDateTime}
+    epoch = convert(T, DateTime(2000))
+    step = epoch + Dates.Nanosecond(1) - epoch
+    step == Dates.Nanosecond(1) ||
+        throw(ArgumentError("time type must preserve nanosecond precision"))
+    Dates.Nanosecond(1)
+end
+
+struct Microsecond <: AbstractTimePeriodFrame
+    period::Dates.Microsecond
+    boundary::Boundary
+end
+Microsecond(n::Integer = 1) = Microsecond(Dates.Microsecond(n), Begin)
+
+struct Nanosecond <: AbstractTimePeriodFrame
+    period::Dates.Nanosecond
+    boundary::Boundary
+end
+Nanosecond(n::Integer = 1) = Nanosecond(Dates.Nanosecond(n), Begin)
 
 struct Millisecond <: AbstractTimePeriodFrame
     period::Dates.Millisecond
@@ -232,7 +248,8 @@ const _D_STR2TIMEFRAME = Dict(
     "T"=>Minute,
     "S"=>Second,
     "L"=>Millisecond,
-    #"U"=>Microsecond,
+    "U"=>Microsecond,
+    "N"=>Nanosecond,
     "" => NoTimeFrame,
 )
 # Reverse key/value
@@ -241,7 +258,8 @@ for (key, typ) in _D_STR2TIMEFRAME
     _D_TIMEFRAME2STR[typ] = key
 end
 # Additional shortcuts
-const _D_STR2TIMEFRAME_ADDITIONAL = Dict("MIN"=>Minute)
+const _D_STR2TIMEFRAME_ADDITIONAL =
+    Dict("MIN"=>Minute, "US"=>Microsecond, "NS"=>Nanosecond)
 for (key, value) in _D_STR2TIMEFRAME_ADDITIONAL
     _D_STR2TIMEFRAME[key] = value
 end
@@ -267,7 +285,7 @@ function TimeFrame(
     boundary isa Boundary ||
         throw(ArgumentError("boundary must be a Boundary value"))
     isempty(s) && return NoTimeFrame()
-    m = match(r"\A([0-9]*)(BMS|BM|AS|MS|MIN|A|M|W|D|H|T|S|L)\z"i, s)
+    m = match(r"\A([0-9]*)(BMS|BM|AS|MS|MIN|US|NS|A|M|W|D|H|T|S|L|U|N)\z"i, s)
     isnothing(m) && throw(ArgumentError("Can't parse '$s' to TimeFrame"))
     value = isempty(m[1]) ? 1 : tryparse(Int, m[1])
     (isnothing(value) || value <= 0) &&
@@ -291,6 +309,33 @@ _with_boundary(tf::Week, boundary) =
     Week(tf.period, boundary, tf.firstdayofweek)
 
 _bucket_start(tf::AbstractPeriodFrame, dt) = floor(dt, tf.period)
+
+function _time_nanoseconds(dt::Dates.AbstractDateTime)
+    milliseconds = Int128(Dates.value(DateTime(dt))) - Dates.value(DateTime(0))
+    milliseconds * 1_000_000 + mod(Dates.value(Dates.Time(dt)), 1_000_000)
+end
+_time_nanoseconds(dt::Dates.Time) = Int128(Dates.value(dt))
+
+function _round_subday(tf::AbstractTimePeriodFrame, dt, boundary)
+    width = Dates.value(convert(Dates.Nanosecond, tf.period))
+    width > 0 || throw(ArgumentError("period must be positive"))
+    remainder = mod(_time_nanoseconds(dt), width)
+    offset = -remainder
+    if boundary == End
+        offset += iszero(remainder) ? 0 : width
+        offset -= Dates.value(_period_step(typeof(dt)))
+    elseif boundary != Begin
+        throw(ArgumentError("unsupported boundary"))
+    end
+    dt + Dates.Nanosecond(offset)
+end
+
+function _bucket_start(
+    tf::AbstractTimePeriodFrame,
+    dt::Union{Dates.Time,Dates.AbstractDateTime},
+)
+    dt isa DateTime ? floor(dt, tf.period) : _round_subday(tf, dt, Begin)
+end
 function _bucket_start(tf::Week, dt)
     shift = Dates.Day(tf.firstdayofweek - 1)
     floor(dt - shift, tf.period) + shift
@@ -364,6 +409,13 @@ end
 
 apply(::NoTimeFrame, dt) = dt
 
+apply(tf::AbstractTimePeriodFrame, dt::Dates.Time) =
+    _round_subday(tf, dt, tf.boundary)
+function apply(tf::AbstractTimePeriodFrame, dt::Dates.AbstractDateTime)
+    dt isa DateTime && return dt_grouper(tf, typeof(dt))(dt)
+    _round_subday(tf, dt, tf.boundary)
+end
+
 function apply(tf::Week, dt::Dates.TimeType)
     start = _bucket_start(tf, dt)
     tf.boundary == Begin && return start
@@ -409,6 +461,7 @@ function date_range(
 ) where {T<:Union{Date,DateTime}}
     Dates.value(tf.period) > 0 ||
         throw(ArgumentError("period must be positive"))
+    _arithmetic_period(tf.period, T)
     values = T[]
     start > stop && return values
     aligned =
@@ -444,7 +497,7 @@ function range(
     if !isnothing(length)
         return range(start, tf, length)
     end
-    apply_tf ? date_range(start, tf, stop) : start:tf.period:stop
+    apply_tf ? date_range(start, tf, stop) : start:tf:stop
 end
 
 # range
@@ -452,7 +505,7 @@ Base.:(:)(
     start::Dates.TimeType,
     tf::AbstractPeriodFrame,
     stop::Dates.TimeType,
-) = start:tf.period:stop
+) = start:_arithmetic_period(tf.period, typeof(start)):stop
 
 """
     range(start::Dates.TimeType, tf::AbstractPeriodFrame, stop::Dates.TimeType; apply_tf=true)
@@ -474,19 +527,21 @@ function range(
     apply_tf = true,
 )
     td = _period_step(typeof(dt2))
+    period = _arithmetic_period(tf.period, typeof(dt1))
     if apply_tf
-        apply(tf, dt1):tf.period:apply(tf, dt2-td)
+        apply(tf, dt1):period:apply(tf, dt2-td)
     else
-        dt1:tf.period:(dt2-td)
+        dt1:period:(dt2-td)
     end
 end
 
 function range(dt1::Dates.TimeType, tf::AbstractPeriodFrame, len::Integer)
-    range(dt1, step = tf.period, length = len)
+    range(dt1, step = _arithmetic_period(tf.period, typeof(dt1)), length = len)
 end
 
 function range(tf::AbstractPeriodFrame, dt2::Dates.TimeType, len::Integer)
-    range(dt2 - len * tf.period, step = tf.period, length = len)
+    period = _arithmetic_period(tf.period, typeof(dt2))
+    range(dt2 - len * period, step = period, length = len)
 end
 
 range(dt1::DateTime, tf::NoTimeFrame, dt2::DateTime) = [dt1]
@@ -497,6 +552,7 @@ macro tf_str(tf)
 end
 
 promote_timetype(::Type{DateTime}, ::Type) = DateTime
+promote_timetype(::Type{T}, ::Type) where {T<:Dates.AbstractDateTime} = T
 
 promote_timetype(::Type{Date}, ::Type) = Date
 promote_timetype(::Type{Date}, ::Type{<:AbstractTimePeriodFrame}) = DateTime
@@ -521,13 +577,23 @@ promote_timetype(::Type{Dates.Time}, ::Type{Week}) =
 promote_timetype(::Type{Dates.Time}, ::Type{Day}) =
     throw(InexactError(:none, Any, nothing))
 
-+(t::T, tf::TF) where {T<:Dates.TimeType,TF<:TimeFrame} =
-    convert(promote_timetype(T, TF), t) + tf.period
+_arithmetic_period(period, ::Type) = period
+_arithmetic_period(
+    period::Union{Dates.Microsecond,Dates.Nanosecond},
+    ::Type{DateTime},
+) = convert(Dates.Millisecond, period)
+
+function +(t::T, tf::TF) where {T<:Dates.TimeType,TF<:TimeFrame}
+    promoted = convert(promote_timetype(T, TF), t)
+    promoted + _arithmetic_period(tf.period, typeof(promoted))
+end
 
 +(tf::TimeFrame, t::TimeType) = t + tf
 
--(t::T, tf::TF) where {T<:Dates.TimeType,TF<:TimeFrame} =
-    convert(promote_timetype(T, TF), t) - tf.period
+function -(t::T, tf::TF) where {T<:Dates.TimeType,TF<:TimeFrame}
+    promoted = convert(promote_timetype(T, TF), t)
+    promoted - _arithmetic_period(tf.period, typeof(promoted))
+end
 
 
 *(tf::AbstractPeriodFrame, n::Int) = typeof(tf)(tf.period * n, tf.boundary)

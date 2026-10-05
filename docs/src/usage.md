@@ -20,6 +20,8 @@ magnitudes are rejected with `ArgumentError`.
 | `T`, `MIN` | Minute | Begin |
 | `S` | Second | Begin |
 | `L`, `ms` | Millisecond | Begin |
+| `U`, `US` | Microsecond | Begin |
+| `N`, `NS` | Nanosecond | Begin |
 
 `MS` means month start; lowercase `ms` means milliseconds. Use `L` for the
 case-insensitive millisecond alias. Mixed-case `Ms` and `mS` remain month start.
@@ -66,13 +68,46 @@ julia> apply(NoTimeFrame(), DateTime(2024, 1, 1))
 Calendar frames may return `Date` when Dates rounding does so. Consumers should
 not assume that every `apply` call on a `DateTime` returns a `DateTime`.
 Period frames support `Date` and `DateTime` where Dates provides rounding.
-For `Time`, use arithmetic, an identity frame, or a custom grouping function.
+Subday frames also support rounding `Time` with nanosecond resolution.
+Calendar rounding of `Time` is unsupported.
+
+### Submillisecond precision
+
+Use `Time` for time-of-day values, or NanoDates 2.1 for dates with nanosecond
+precision. No NanoDates runtime dependency is required by TimeFrames; install
+it separately when using `NanoDate`. Subday frames round these values using
+integer nanoseconds, including multi-unit buckets.
+
+`DateTime` only stores milliseconds. Applying a smaller period to it throws
+`InexactError`; arithmetic and ranges also reject steps below its precision.
+A microsecond period exactly divisible by 1000 can be represented.
+Use a precise input type instead of converting through `DateTime`.
+NanoDate calendar-frame rounding is outside this subday integration.
+
+```jldoctest
+julia> using Dates, TimeFrames
+
+julia> apply(tf"10us", Dates.Time(12, 0, 0, 0, 123, 456))
+12:00:00.00012
+
+julia> apply(TimeFrame("10ns"; boundary=End), Dates.Time(12, 0, 0, 0, 123, 456))
+12:00:00.000123459
+```
+
+```julia
+using Dates, NanoDates, TimeFrames
+dt = NanoDate(2024, 1, 1, 12, 0, 0, 0, 123, 456)
+apply(tf"10us", dt) # NanoDate with 120 microseconds past the second
+dt + tf"N"         # Advances by one nanosecond
+```
 
 ### Weekly anchors and business months
 
 Weekly frames default to Monday. Specify `firstdayofweek=7` for Sunday;
 integers 1 through 7 follow Dates' Monday-to-Sunday numbering.
 The keyword applies only to frequency strings for weekly frames.
+Frequency-string serialization preserves the period and unit, but does not
+encode a custom weekday anchor or an overridden boundary policy.
 
 Business months select the first or last Monday-to-Friday date within the
 month bucket. They do not account for public holidays or exchange calendars;

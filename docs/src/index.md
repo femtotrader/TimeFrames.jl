@@ -40,16 +40,22 @@ using Pkg
 Pkg.add("TimeFrames")
 ```
 
-Version 0.8.0 is available as a GitHub release. Until it is registered in General,
-install the tagged repository revision explicitly:
+Version 0.8.0 is registered in General and published as a GitHub release.
+To install that exact release for reproducibility:
 
 ```julia
 using Pkg
-Pkg.add(url="https://github.com/femtotrader/TimeFrames.jl", rev="v0.8.0")
+Pkg.add(name="TimeFrames", version="0.8.0")
 ```
 
 For local development, use `Pkg.develop(path="/path/to/TimeFrames.jl")`.
 Record the commit hash when testing an unreleased repository revision.
+
+!!! note "Development documentation"
+    These pages follow `main` and include unreleased additions. The `ms`
+    correction, colon ranges, weekly anchors, business months, inclusive
+    calendar ranges, and submillisecond frames are intended for the next
+    compatibility series, 0.9. They are not included in v0.8.0.
 
 ## Quick start
 

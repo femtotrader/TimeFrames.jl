@@ -1,8 +1,9 @@
 # Modernization requirements
 
 These requirements describe the migration before publication; milestones are not
-releases. These requirements apply to version 0.8.0; General registration remains
-pending after its GitHub release.
+releases. These requirements record the migration released and registered as
+version 0.8.0. Subsequent issue follow-ups are recorded under Unreleased in the
+changelog and target the next compatibility series.
 
 | ID | Priority | Requirement | Verification |
 | --- | --- | --- | --- |
@@ -29,7 +30,8 @@ pending after its GitHub release.
 
 ## Scope deferred
 
-Performance tuning and new frequency aliases are Could priorities. A type-system
+Performance tuning remains deferred. Additional frequency aliases are now
+implemented on the development branch. A type-system
 redesign and a 1.0 API stabilization are outside this migration.
 
 Assisted-by: AI

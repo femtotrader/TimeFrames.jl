@@ -25,9 +25,11 @@ julia> apply(TimeFrame("2H"), DateTime(2016, 9, 11, 20, 9))
 ```
 
 See the [usage guide](docs/src/usage.md), [API reference](docs/src/api.md), and
-[migration guide](docs/src/migration.md). Version 0.8.0 is a GitHub release;
-registration in General remains pending. See the
-[changelog](CHANGELOG.md) before upgrading from the registered 0.2.0 version.
+[migration guide](docs/src/migration.md). Version 0.8.0 is registered in General
+and published as a GitHub release. See the
+[changelog](CHANGELOG.md) before upgrading from 0.2.0.
+The `main` branch and its documentation also include unreleased changes targeting
+the next compatibility series, 0.9; these are not part of v0.8.0.
 The documentation workflow publishes to
 [GitHub Pages](https://femtotrader.github.io/TimeFrames.jl/) after validated builds
 on `main`.
