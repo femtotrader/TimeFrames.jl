@@ -9,12 +9,13 @@ export YearBegin, YearEnd
 export MonthBegin, MonthEnd
 # export Millisecond, Second, Minute, Hour, Day, Week
 export NoTimeFrame
-export apply, range
+export apply, range, date_range
+export BusinessMonthBegin, BusinessMonthEnd
 export Begin, End
 export @tf_str
 
 """
-    TimeFrame(frequency::AbstractString; boundary=TimeFrames.UndefBoundary)
+    TimeFrame(frequency::AbstractString; boundary=TimeFrames.UndefBoundary, firstdayofweek=nothing)
     TimeFrame(period::Dates.Period; boundary=Begin)
     TimeFrame(grouper::Function)
     TimeFrame()
@@ -27,6 +28,8 @@ Supported frequency units are `A`, `AS`, `M`, `MS`, `W`, `D`, `H`, `T` (or
 that `ms` means milliseconds and `MS` means month start. Units may have a positive integer
 prefix. `A` and `M` default to `End`; other units default to `Begin`.
 Invalid strings throw `ArgumentError`.
+Business-month aliases `BM` and `BMS` exclude weekends, but not holidays.
+Weekly frames accept `firstdayofweek` from 1 (Monday) to 7 (Sunday).
 """
 abstract type TimeFrame end
 
@@ -141,6 +144,19 @@ Day(n::Integer) = Day(Dates.Day(n), Begin)
 struct Week <: AbstractDatePeriodFrame
     period::Dates.Week
     boundary::Boundary
+    firstdayofweek::Int
+    function Week(
+        period::Dates.Week,
+        boundary::Boundary,
+        firstdayofweek::Integer = 1,
+    )
+        1 <= firstdayofweek <= 7 || throw(
+            ArgumentError(
+                "firstdayofweek must be between 1 (Monday) and 7 (Sunday)",
+            ),
+        )
+        new(period, boundary, firstdayofweek)
+    end
 end
 Week() = Week(Dates.Week(1), Begin)
 Week(n::Integer) = Week(Dates.Week(n), Begin)
@@ -177,11 +193,39 @@ end
 YearBegin() = YearBegin(Dates.Year(1), Begin)
 YearBegin(n::Integer) = YearBegin(Dates.Year(n), Begin)
 
+"""
+    BusinessMonthBegin(n=1)
+
+Group by the first weekday of each month bucket. Weekends are Saturday and
+Sunday; public holidays are not excluded.
+"""
+struct BusinessMonthBegin <: AbstractDatePeriodFrame
+    period::Dates.Month
+    boundary::Boundary
+end
+BusinessMonthBegin(n::Integer = 1) = BusinessMonthBegin(Dates.Month(n), Begin)
+
+"""
+    BusinessMonthEnd(n=1)
+
+Group by the last weekday of each month bucket. Weekends are Saturday and
+Sunday; public holidays are not excluded.
+"""
+struct BusinessMonthEnd <: AbstractDatePeriodFrame
+    period::Dates.Month
+    boundary::Boundary
+end
+BusinessMonthEnd(n::Integer = 1) = BusinessMonthEnd(Dates.Month(n), End)
+
+const BusinessMonthFrame = Union{BusinessMonthBegin,BusinessMonthEnd}
+
 const _D_STR2TIMEFRAME = Dict(
     "A"=>YearEnd,
     "AS"=>YearBegin,
     "M"=>MonthEnd,
     "MS"=>MonthBegin,
+    "BM"=>BusinessMonthEnd,
+    "BMS"=>BusinessMonthBegin,
     "W"=>Week,
     "D"=>Day,
     "H"=>Hour,
@@ -215,18 +259,57 @@ end
 Base.String(::NoTimeFrame) = ""
 
 # Parse
-function TimeFrame(s::AbstractString; boundary = UndefBoundary)
+function TimeFrame(
+    s::AbstractString;
+    boundary = UndefBoundary,
+    firstdayofweek = nothing,
+)
     boundary isa Boundary ||
         throw(ArgumentError("boundary must be a Boundary value"))
     isempty(s) && return NoTimeFrame()
-    m = match(r"\A([0-9]*)(AS|MS|MIN|A|M|W|D|H|T|S|L)\z"i, s)
+    m = match(r"\A([0-9]*)(BMS|BM|AS|MS|MIN|A|M|W|D|H|T|S|L)\z"i, s)
     isnothing(m) && throw(ArgumentError("Can't parse '$s' to TimeFrame"))
     value = isempty(m[1]) ? 1 : tryparse(Int, m[1])
     (isnothing(value) || value <= 0) &&
         throw(ArgumentError("TimeFrame magnitude must be a positive Int"))
     unit = m[2] == "ms" ? "L" : uppercase(m[2])
     tf = _D_STR2TIMEFRAME[unit](value)
-    boundary == UndefBoundary ? tf : typeof(tf)(tf.period, boundary)
+    if !isnothing(firstdayofweek)
+        tf isa Week || throw(
+            ArgumentError("firstdayofweek is only supported for weekly frames"),
+        )
+        firstdayofweek isa Integer ||
+            throw(ArgumentError("firstdayofweek must be an integer"))
+        tf = Week(tf.period, tf.boundary, firstdayofweek)
+    end
+    boundary == UndefBoundary ? tf : _with_boundary(tf, boundary)
+end
+
+_with_boundary(tf::AbstractPeriodFrame, boundary) =
+    typeof(tf)(tf.period, boundary)
+_with_boundary(tf::Week, boundary) =
+    Week(tf.period, boundary, tf.firstdayofweek)
+
+_bucket_start(tf::AbstractPeriodFrame, dt) = floor(dt, tf.period)
+function _bucket_start(tf::Week, dt)
+    shift = Dates.Day(tf.firstdayofweek - 1)
+    floor(dt - shift, tf.period) + shift
+end
+
+function _bucket_label(tf::AbstractPeriodFrame, start, ::Type{T}) where {T}
+    start = convert(T, start)
+    tf.boundary == Begin ? start : start + tf.period - _period_step(T)
+end
+
+function _bucket_label(tf::BusinessMonthFrame, start, ::Type{T}) where {T}
+    label =
+        tf.boundary == Begin ? convert(T, start) :
+        convert(T, start + tf.period) - _period_step(T)
+    weekday = Dates.dayofweek(label)
+    if weekday > 5
+        label += Dates.Day(tf.boundary == Begin ? 8 - weekday : 5 - weekday)
+    end
+    label
 end
 
 # grouper
@@ -281,17 +364,87 @@ end
 
 apply(::NoTimeFrame, dt) = dt
 
-function tonext(tf::TimeFrame, dt::Dates.TimeType; same = false)
-    dt2 = apply(tf, dt)
-    if dt2 < dt
-        dt2 + tf
-    else
-        if !same && dt2 == dt
-            dt2 + tf
-        else
-            dt2
-        end
+function apply(tf::Week, dt::Dates.TimeType)
+    start = _bucket_start(tf, dt)
+    tf.boundary == Begin && return start
+    ceiling = dt == start ? start : start + tf.period
+    ceiling - _period_step(typeof(dt))
+end
+
+apply(tf::BusinessMonthFrame, dt::Dates.TimeType) =
+    _bucket_label(tf, _bucket_start(tf, dt), typeof(dt))
+
+"""
+    TimeFrames.tonext(tf::AbstractPeriodFrame, dt::Dates.TimeType; same=false)
+
+Return the next bucket label after `dt`. Set `same=true` to include an existing
+label equal to `dt`. Calendar boundaries are recomputed for each bucket, so
+month ends do not drift. Use this qualified name to distinguish Dates.tonext.
+"""
+function tonext(tf::AbstractPeriodFrame, dt::Dates.TimeType; same = false)
+    Dates.value(tf.period) > 0 ||
+        throw(ArgumentError("period must be positive"))
+    start = _bucket_start(tf, dt)
+    label = _bucket_label(tf, start, typeof(dt))
+    if label < dt || (!same && label == dt)
+        label = _bucket_label(tf, start + tf.period, typeof(dt))
     end
+    label
+end
+
+"""
+    date_range(start::T, tf::AbstractPeriodFrame, stop::T; normalize=false)
+
+Return a vector of time values in the inclusive interval `start` to `stop`.
+Month, year, week, business-month, and end-boundary frames align to bucket
+labels. Other frames preserve the start's offset unless `normalize=true`.
+DateTime end labels include the day's final millisecond. This is a bucket API,
+not a complete implementation of pandas offsets or holiday calendars.
+"""
+function date_range(
+    start::T,
+    tf::AbstractPeriodFrame,
+    stop::T;
+    normalize = false,
+) where {T<:Union{Date,DateTime}}
+    Dates.value(tf.period) > 0 ||
+        throw(ArgumentError("period must be positive"))
+    values = T[]
+    start > stop && return values
+    aligned =
+        normalize ||
+        tf.boundary == End ||
+        tf.period isa Union{Dates.Month,Dates.Year,Dates.Week}
+    if !aligned
+        return collect(start:tf.period:stop)
+    end
+    bucket = _bucket_start(tf, start)
+    label = _bucket_label(tf, bucket, T)
+    while label < start
+        bucket += tf.period
+        label = _bucket_label(tf, bucket, T)
+    end
+    while label <= stop
+        push!(values, label)
+        bucket += tf.period
+        label = _bucket_label(tf, bucket, T)
+    end
+    values
+end
+
+function range(
+    start::Dates.TimeType,
+    tf::AbstractPeriodFrame;
+    stop = nothing,
+    length = nothing,
+    apply_tf = true,
+)
+    isnothing(stop) == isnothing(length) &&
+        throw(ArgumentError("provide exactly one of stop or length"))
+    if !isnothing(length)
+        return range(start, tf, length)
+    end
+    apply_tf ? date_range(start, tf, stop) : start:tf.period:stop
 end
 
 # range
@@ -305,10 +458,14 @@ Base.:(:)(
     range(start::Dates.TimeType, tf::AbstractPeriodFrame, stop::Dates.TimeType; apply_tf=true)
     range(start::Dates.TimeType, tf::AbstractPeriodFrame, length::Integer)
     range(tf::AbstractPeriodFrame, stop::Dates.TimeType, length::Integer)
+    range(start::Dates.TimeType, tf::AbstractPeriodFrame; stop, length, apply_tf=true)
 
 Construct a range with the frame's period as step. The two-endpoint form excludes
 `stop` and rounds endpoints by default. Set `apply_tf=false` to retain the starting
 offset. Length-based forms retain offsets; the backwards form excludes `stop`.
+The keyword form requires exactly one of `stop` or `length`. Its stop is
+inclusive and calendar frames align to bucket labels through [`date_range`](@ref).
+Set `apply_tf=false` to use an inclusive Dates range without alignment.
 """
 function range(
     dt1::Dates.TimeType,
@@ -375,6 +532,7 @@ promote_timetype(::Type{Dates.Time}, ::Type{Day}) =
 
 *(tf::AbstractPeriodFrame, n::Int) = typeof(tf)(tf.period * n, tf.boundary)
 *(n::Int, tf::AbstractPeriodFrame) = *(tf, n)
+*(tf::Week, n::Int) = Week(tf.period * n, tf.boundary, tf.firstdayofweek)
 
 
 end # module

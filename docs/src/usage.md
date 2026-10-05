@@ -12,6 +12,8 @@ magnitudes are rejected with `ArgumentError`.
 | `AS` | Year | Begin |
 | `M` | Month | End |
 | `MS` | Month | Begin |
+| `BM` | Business month (weekdays only) | End |
+| `BMS` | Business month (weekdays only) | Begin |
 | `W` | Week | Begin |
 | `D` | Day | Begin |
 | `H` | Hour | Begin |
@@ -66,6 +68,44 @@ not assume that every `apply` call on a `DateTime` returns a `DateTime`.
 Period frames support `Date` and `DateTime` where Dates provides rounding.
 For `Time`, use arithmetic, an identity frame, or a custom grouping function.
 
+### Weekly anchors and business months
+
+Weekly frames default to Monday. Specify `firstdayofweek=7` for Sunday;
+integers 1 through 7 follow Dates' Monday-to-Sunday numbering.
+The keyword applies only to frequency strings for weekly frames.
+
+Business months select the first or last Monday-to-Friday date within the
+month bucket. They do not account for public holidays or exchange calendars;
+use a custom grouping function for those rules.
+
+```jldoctest
+julia> using Dates, TimeFrames
+
+julia> apply(TimeFrame("W"; firstdayofweek=7), Date(2024, 1, 3))
+2023-12-31
+
+julia> apply(tf"BM", Date(2024, 3, 15))
+2024-03-29
+
+julia> apply(tf"BMS", Date(2024, 6, 15))
+2024-06-03
+```
+
+`TimeFrames.tonext` finds the next boundary label, recalculating calendar
+boundaries rather than adding a month to a previous month-end date.
+Arithmetic (`date + frame`) adds the underlying period; use `tonext` when
+you want a boundary instead. Its qualified name avoids confusion with Dates.
+
+```jldoctest
+julia> using Dates, TimeFrames
+
+julia> TimeFrames.tonext(tf"M", Date(2024, 2, 29))
+2024-03-31
+
+julia> TimeFrames.tonext(tf"M", Date(2024, 2, 29); same=true)
+2024-02-29
+```
+
 ## Arithmetic and custom grouping
 
 Period frames support adding to and subtracting from time values, and multiplying
@@ -88,6 +128,32 @@ julia> apply(tf, DateTime(2024, 1, 1, 12, 19))
 ```
 
 ## Ranges
+
+Use `date_range(start, frame, stop)` or `range(start, frame; stop=stop)` for
+inclusive bounds. Month, year, week, and business-month frames use calendar
+labels recalculated for each bucket. Other beginning frames retain the start's
+time of day; `normalize=true` on `date_range` aligns them to bucket starts.
+The result of `date_range` is an eagerly allocated vector. For a lazy sequence
+of underlying periods without bucket alignment, use colon syntax.
+
+```jldoctest
+julia> using Dates, TimeFrames
+
+julia> date_range(Date(2024, 1, 1), tf"M", Date(2024, 3, 31))
+3-element Vector{Date}:
+ 2024-01-31
+ 2024-02-29
+ 2024-03-31
+
+julia> collect(range(Date(2024, 1, 1), tf"D"; length=2))
+2-element Vector{Date}:
+ 2024-01-01
+ 2024-01-02
+```
+
+Unlike pandas' midnight month-end offsets, TimeFrames end labels for `DateTime`
+are the final millisecond of the final day. Use `Date` inputs for date-only labels.
+Frequency strings describe buckets, not the complete pandas DateOffset API.
 
 Colon syntax uses the underlying Dates period, preserves the start's offset,
 and includes the stop when it lies on the step sequence. It does not round

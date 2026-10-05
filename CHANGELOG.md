@@ -10,6 +10,11 @@ Pkg's compatibility convention for pre-1.0 packages.
 ### Added
 
 - Colon syntax for ranges with a timeframe step (#6).
+- Weekly frequency strings accept `firstdayofweek` from Monday to Sunday (#9).
+- Weekday-only business month frames and `BM` / `BMS` aliases (#2).
+- Inclusive `date_range` and keyword `range` forms, with calendar boundary
+  alignment and retained offsets for fixed beginning frames (#5, #31).
+- Documentation for the distinction between period arithmetic and `tonext` (#39).
 - Executable documentation examples for the `tf"5Min"` literal and both
   length-based range forms, completing the documentation follow-up in issue #30.
 
@@ -17,6 +22,11 @@ Pkg's compatibility convention for pre-1.0 packages.
 
 - **Breaking:** lowercase `ms` denotes milliseconds rather than month start;
   use uppercase `MS` for month start (#43).
+
+### Fixed
+
+- Recompute the next calendar boundary rather than drifting when a preceding
+  month has fewer days (#39).
 
 ## [0.8.0] - 2026-10-05
 

@@ -1,5 +1,11 @@
 # Migration
 
+## Unreleased changes
+
+Lowercase `ms` now means milliseconds. Code using `TimeFrame("ms")` for
+month start must use `TimeFrame("MS")` instead. This breaking correction
+belongs to the next compatibility series; it is not part of the v0.8.0 tag.
+
 This guide describes the GitHub release 0.8.0. The earlier registration attempt
 was closed without merging; General registration remains pending. The registered
 version is still 0.2.0 until a new registration completes.

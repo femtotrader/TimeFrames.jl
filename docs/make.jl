@@ -66,7 +66,11 @@ open(joinpath(build_dir, "llms-full.txt"), "w") do io
         :YearEnd,
         :MonthBegin,
         :MonthEnd,
+        :BusinessMonthBegin,
+        :BusinessMonthEnd,
         :apply,
+        :date_range,
+        :tonext,
         Symbol("@tf_str"),
     )
         println(io, "## ", name, "\n")
